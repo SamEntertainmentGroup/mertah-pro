@@ -122,7 +122,6 @@ class ReceiverActivity : Activity() {
             setTextColor(Color.WHITE)
             background = rounded(Color.rgb(25, 145, 80), Color.TRANSPARENT, 12)
             stateListAnimator = null
-            visibility = View.GONE
             setOnClickListener { openMap() }
         }
         infoCard.addView(mapBtn, LinearLayout.LayoutParams(-1, dp(48)).apply { topMargin = dp(10) })
@@ -254,7 +253,7 @@ class ReceiverActivity : Activity() {
             }
         }
 
-        mapBtn.visibility = if (lat != null && lng != null) View.VISIBLE else View.GONE
+        mapBtn.alpha = if (lat != null && lng != null) 1f else 0.45f
     }
 
     private fun openMap() {
