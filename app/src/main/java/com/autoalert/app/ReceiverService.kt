@@ -87,6 +87,16 @@ class ReceiverService : Service() {
         if (fails >= 6) updateForeground(getString(R.string.recv_listening))
         fails = 0
 
+        // Dernier signe de vie de la voiture (âge en secondes, calculé par le serveur)
+        val alive = res.optJSONObject("alive")
+        p.edit()
+            .putLong("r_poll_ms", System.currentTimeMillis())
+            .putLong("r_alive_age", if (alive != null) alive.optLong("age", -1L) else -1L)
+            .apply()
+        if (alive != null && alive.has("battery") && !alive.isNull("battery")) {
+            p.edit().putInt("r_battery", alive.optInt("battery")).apply()
+        }
+
         var alert = false
         val events = res.optJSONArray("events")
         if (events != null) {

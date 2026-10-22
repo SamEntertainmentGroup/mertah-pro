@@ -33,12 +33,16 @@ object Api {
     }
 
     // Envoi en arrière-plan avec 3 tentatives
-    fun postAsync(path: String, body: JSONObject) {
+    fun postAsync(path: String, body: JSONObject, onResult: ((Boolean) -> Unit)? = null) {
         io.execute {
             for (i in 0 until 3) {
-                if (post(path, body) != null) return@execute
+                if (post(path, body) != null) {
+                    onResult?.invoke(true)
+                    return@execute
+                }
                 try { Thread.sleep(3000) } catch (_: InterruptedException) { return@execute }
             }
+            onResult?.invoke(false)
         }
     }
 }

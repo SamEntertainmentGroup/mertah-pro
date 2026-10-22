@@ -82,4 +82,12 @@
     <string name="msg_no_pos">No position yet</string>
     <string name="ch_recv">AutoAlert receiver</string>
     <string name="ch_alert">Car alarms</string>
+    <string name="car_link_ok">✅ Connected to the server · %1$s</string>
+    <string name="car_link_fail">⚠ Server unreachable (check internet)</string>
+    <string name="car_link_wait">⏳ Connecting to the server…</string>
+    <string name="link_ok">🟢 Car connected · seen %1$d min ago</string>
+    <string name="link_old">🟠 No sign of the car for %1$d min</string>
+    <string name="link_none">🔴 No car found with this code</string>
+    <string name="link_server">⚠ Server unreachable</string>
+    <string name="link_off">⚪ Listening stopped</string>
 </resources>

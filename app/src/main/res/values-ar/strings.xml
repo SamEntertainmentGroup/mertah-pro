@@ -82,4 +82,12 @@
     <string name="msg_no_pos">لا يوجد موقع بعد</string>
     <string name="ch_recv">استقبال AutoAlert</string>
     <string name="ch_alert">إنذارات السيارة</string>
+    <string name="car_link_ok">✅ متصل بالخادم · %1$s</string>
+    <string name="car_link_fail">⚠ الخادم غير متاح (تحقق من الإنترنت)</string>
+    <string name="car_link_wait">⏳ جارٍ الاتصال بالخادم…</string>
+    <string name="link_ok">🟢 السيارة متصلة · منذ %1$d دقيقة</string>
+    <string name="link_old">🟠 لا إشارة من السيارة منذ %1$d دقيقة</string>
+    <string name="link_none">🔴 لا توجد سيارة بهذا الرمز</string>
+    <string name="link_server">⚠ الخادم غير متاح</string>
+    <string name="link_off">⚪ الاستماع متوقف</string>
 </resources>

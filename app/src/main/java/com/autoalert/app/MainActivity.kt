@@ -27,6 +27,7 @@ class MainActivity : Activity() {
     private lateinit var root: LinearLayout
     private lateinit var banner: TextView
     private lateinit var phoneInput: EditText
+    private lateinit var linkText: TextView
     private lateinit var sensitivityBar: SeekBar
     private val sensitivityLabels = mutableListOf<TextView>()
     private lateinit var toggleBtn: Button
@@ -148,6 +149,13 @@ class MainActivity : Activity() {
         }
 
         phoneCard.addView(phoneInput)
+
+        linkText = TextView(this).apply {
+            textSize = 14f
+            setTextColor(Color.rgb(90, 95, 105))
+            setPadding(dp(4), dp(10), dp(4), 0)
+        }
+        phoneCard.addView(linkText)
         root.addView(phoneCard)
 
         // SENSIBILITÉ : barre horizontale à 3 positions
@@ -327,6 +335,8 @@ class MainActivity : Activity() {
                 .putInt("mode", index)
                 .putFloat("seuil", choiceValues[index])
                 .putBoolean("active", true)
+                .putLong("c_ok_ms", 0L)
+                .putBoolean("c_fail", false)
                 .apply()
 
             stopService(
@@ -377,6 +387,40 @@ class MainActivity : Activity() {
         if (!::callBtn.isInitialized) return
         refreshConfig()
         refreshSensitivity()
+        handler.removeCallbacks(linkTicker)
+        handler.post(linkTicker)
+    }
+
+    override fun onPause() {
+        handler.removeCallbacks(linkTicker)
+        super.onPause()
+    }
+
+    private val linkTicker = object : Runnable {
+        override fun run() {
+            refreshLink()
+            handler.postDelayed(this, 3000)
+        }
+    }
+
+    // Indicateur de liaison avec le serveur
+    private fun refreshLink() {
+        if (!::linkText.isInitialized) return
+        val p = getSharedPreferences("p", MODE_PRIVATE)
+        if (!p.getBoolean("active", false)) {
+            linkText.text = ""
+            return
+        }
+        val ok = p.getLong("c_ok_ms", 0L)
+        val fresh = ok > 0 && System.currentTimeMillis() - ok < 12 * 60_000L
+        linkText.text = when {
+            fresh -> getString(
+                R.string.car_link_ok,
+                java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT).format(java.util.Date(ok))
+            )
+            p.getBoolean("c_fail", false) || ok > 0 -> getString(R.string.car_link_fail)
+            else -> getString(R.string.car_link_wait)
+        }
     }
 
     override fun onDestroy() {
@@ -713,6 +757,11 @@ class MainActivity : Activity() {
         sensitivityBar.progressTintList = barTint
         sensitivityBar.thumbTintList = barTint
         sensitivityBar.setOnTouchListener { _, _ -> active }
+
+        // Code verrouillé tant que la protection est active
+        phoneInput.isEnabled = !active
+        phoneInput.alpha = if (active) 0.5f else 1f
+        refreshLink()
     }
 
     // Cadenas sur Sensible et Extrême tant qu'aucun code valide n'est saisi

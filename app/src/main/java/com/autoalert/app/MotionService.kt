@@ -232,7 +232,15 @@ class MotionService : Service(), SensorEventListener {
                 o.put("acc", l.accuracy.toInt())
             }
         }
-        Api.postAsync("event", o)
+        val prefs = getSharedPreferences("p", MODE_PRIVATE)
+        Api.postAsync("event", o) { ok ->
+            if (ok) {
+                prefs.edit().putLong("c_ok_ms", System.currentTimeMillis())
+                    .putBoolean("c_fail", false).apply()
+            } else {
+                prefs.edit().putBoolean("c_fail", true).apply()
+            }
+        }
     }
 
     private fun battery(): Int = try {

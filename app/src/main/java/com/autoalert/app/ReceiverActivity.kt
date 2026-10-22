@@ -37,6 +37,7 @@ class ReceiverActivity : Activity() {
     private lateinit var configCard: LinearLayout
     private lateinit var notifBtn: Button
     private lateinit var batBtn: Button
+    private lateinit var linkText: TextView
     private lateinit var infoAlert: TextView
     private lateinit var infoPos: TextView
     private lateinit var infoAlive: TextView
@@ -103,6 +104,11 @@ class ReceiverActivity : Activity() {
         // ÉTAT DE LA VOITURE
         root.addView(sectionTitle(getString(R.string.recv_section_car)))
         val infoCard = card()
+        linkText = infoLine().apply {
+            textSize = 16f
+            setTypeface(null, Typeface.BOLD)
+        }
+        infoCard.addView(linkText)
         infoAlert = infoLine()
         infoPos = infoLine()
         infoAlive = infoLine()
@@ -178,6 +184,7 @@ class ReceiverActivity : Activity() {
             prefs.edit()
                 .putString("code", code)
                 .putLong("r_since", -1L)
+                .putLong("r_poll_ms", 0L)
                 .putBoolean("r_active", true)
                 .apply()
 
@@ -233,6 +240,20 @@ class ReceiverActivity : Activity() {
         infoPos.text = "📍 ${getString(R.string.info_pos)} : ${t(p.getLong("r_pos_ts", 0))}"
         infoAlive.text = "💚 ${getString(R.string.info_alive)} : ${t(p.getLong("r_alive_ts", 0))}$bat"
 
+        // Indicateur de liaison avec la voiture
+        val now = System.currentTimeMillis()
+        val pollMs = p.getLong("r_poll_ms", 0L)
+        val age = p.getLong("r_alive_age", -1L)
+        linkText.text = when {
+            !p.getBoolean("r_active", false) -> getString(R.string.link_off)
+            pollMs == 0L || now - pollMs > 60_000L -> getString(R.string.link_server)
+            age < 0 -> getString(R.string.link_none)
+            else -> {
+                val min = ((age + (now - pollMs) / 1000) / 60).toInt().coerceAtLeast(1)
+                if (min <= 12) getString(R.string.link_ok, min) else getString(R.string.link_old, min)
+            }
+        }
+
         mapBtn.visibility = if (lat != null && lng != null) View.VISIBLE else View.GONE
     }
 
@@ -287,6 +308,8 @@ class ReceiverActivity : Activity() {
 
     // ÉTAT : bouton rond vert ou rouge
     private fun updateStatus(active: Boolean) {
+        codeInput.isEnabled = !active
+        codeInput.alpha = if (active) 0.5f else 1f
         toggleBtn.text = if (active) "🔒" else "🔓"
         toggleBtn.setTextColor(Color.WHITE)
         toggleBtn.contentDescription =

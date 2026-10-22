@@ -82,4 +82,12 @@
     <string name="msg_no_pos">Pas encore de position</string>
     <string name="ch_recv">Récepteur AutoAlert</string>
     <string name="ch_alert">Alarmes voiture</string>
+    <string name="car_link_ok">✅ Connecté au serveur · %1$s</string>
+    <string name="car_link_fail">⚠ Serveur injoignable (vérifie internet)</string>
+    <string name="car_link_wait">⏳ Connexion au serveur…</string>
+    <string name="link_ok">🟢 Voiture connectée · vue il y a %1$d min</string>
+    <string name="link_old">🟠 Aucun signe de la voiture depuis %1$d min</string>
+    <string name="link_none">🔴 Aucune voiture trouvée avec ce code</string>
+    <string name="link_server">⚠ Serveur injoignable</string>
+    <string name="link_off">⚪ Écoute arrêtée</string>
 </resources>
