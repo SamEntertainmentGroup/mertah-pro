@@ -2,7 +2,7 @@ package com.autoalert.app
 
 object Config {
     // Adresse de ton site WordPress (https, sans « / » à la fin)
-    const val SERVER = "https://TON-SITE.com"
+    const val SERVER = "https://jarti.app"
 
     const val POLL_MS = 10_000L            // le récepteur interroge le serveur toutes les 10 s
     const val POS_EVERY_MS = 15_000L       // la voiture envoie sa position toutes les 15 s
