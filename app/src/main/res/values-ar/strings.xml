@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AutoAlert Online</string>
+
+    <string name="status_active">الحماية مفعّلة</string>
+    <string name="status_inactive">الحماية غير مفعّلة</string>
+    <string name="config_title">⚠ إعداد مطلوب</string>
+    <string name="perm_notif">إذن الإشعارات</string>
+    <string name="perm_battery">البطارية بدون قيود</string>
+    <string name="btn_authorize">السماح</string>
+    <string name="btn_ok">✓ تم</string>
+    <string name="section_sensitivity">الحساسية</string>
+    <string name="sens_normal">عادية</string>
+    <string name="sens_sensible">عالية</string>
+    <string name="sens_extreme">قصوى</string>
+    <string name="btn_activate">🟢 تفعيل الحماية</string>
+    <string name="btn_stop">🔴 إيقاف الحماية</string>
+    <string name="btn_plus">المزيد</string>
+    <string name="msg_finish_config">أكمل الإعداد أولاً</string>
+    <string name="msg_activated">تم تفعيل الحماية</string>
+    <string name="msg_stopped">تم إيقاف الحماية</string>
+    <string name="msg_allow_settings">اسمح من إعدادات التطبيق</string>
+    <string name="msg_locked_option">🔒 افتح هذا المستوى من «المزيد»</string>
+
+    <string name="how_title">كيف يعمل التطبيق</string>
+    <string name="how_1_title">1. ثبّت التطبيق على هاتفين.</string>
+    <string name="how_1_body">يبقى أحدهما في السيارة (مع الإنترنت واي فاي أو 4G وتفعيل GPS) والآخر معك.</string>
+    <string name="how_2_title">2. هاتف السيارة.</string>
+    <string name="how_2_body">اختر «في السيارة»، أدخل رمزك السري، حدد الحساسية ثم فعّل الحماية.</string>
+    <string name="how_3_title">3. هاتفك.</string>
+    <string name="how_3_body">اختر «هاتفي»، أدخل الرمز نفسه وفعّل الاستماع. إذا تحركت السيارة يصلك إنذار مع موقعها.</string>
+    <string name="btn_unlock">🔓 فتح الحساسية</string>
+    <string name="btn_share">🔗 مشاركة التطبيق</string>
+    <string name="btn_contact">💬 اتصل بنا</string>
+    <string name="btn_back">العودة إلى الصفحة الرئيسية</string>
+    <string name="share_text">AutoAlert: تطبيق يرسل لك إنذارًا مع موقع GPS إذا تحركت سيارتك أثناء الليل.</string>
+    <string name="share_chooser">مشاركة التطبيق</string>
+
+    <string name="unlock_title">فتح الحساسية</string>
+    <string name="unlock_intro">اختر المستوى العالي أو القصوى لمدة 12 شهرًا.</string>
+    <string name="unlock_status_on">مفتوحة حتى %1$s</string>
+    <string name="unlock_status_off">مقفلة: الحساسية العادية فقط</string>
+    <string name="unlock_device_label">رمز جهازك</string>
+    <string name="btn_copy">نسخ</string>
+    <string name="msg_copied">تم نسخ الرمز</string>
+    <string name="btn_get_code">💬 الحصول على رمز التفعيل</string>
+    <string name="unlock_enter_label">أدخل رمز التفعيل</string>
+    <string name="unlock_code_hint">XXXXX-XXXXX</string>
+    <string name="btn_validate">تأكيد</string>
+    <string name="msg_code_ok">تم فتح الحساسية</string>
+    <string name="msg_code_invalid">رمز غير صحيح</string>
+    <string name="msg_code_expired">انتهت صلاحية هذا الرمز</string>
+
+    <string name="notif_channel_name">الحماية من السرقة</string>
+    <string name="notif_channel_desc">المراقبة ضد السرقة مفعّلة</string>
+    <string name="notif_title">حماية السيارة مفعّلة</string>
+    <string name="notif_text">جارٍ رصد الحركة</string>
+
+    <string name="perm_location">إذن تحديد الموقع</string>
+    <string name="section_code">الرمز السري (نفسه على الهاتفين)</string>
+    <string name="code_hint">8 أحرف على الأقل (حروف وأرقام)</string>
+    <string name="msg_invalid_code">رمز غير صالح: من 8 إلى 32 حرفًا أو رقمًا</string>
+    <string name="role_title">ماذا سيفعل هذا الهاتف؟</string>
+    <string name="role_car">🚗 في السيارة</string>
+    <string name="role_car_desc">يراقب الحركة ويرسل الإنذار</string>
+    <string name="role_receiver">📱 هاتفي</string>
+    <string name="role_receiver_desc">يستقبل الإنذار والموقع</string>
+    <string name="btn_change_role">🔄 تغيير الوضع</string>
+    <string name="role_confirm">تغيير الوضع سيوقف الحماية. المتابعة؟</string>
+    <string name="recv_title">AutoAlert · الاستقبال</string>
+    <string name="recv_listening">الاستماع جارٍ…</string>
+    <string name="recv_offline">⚠ لا يوجد اتصال بالخادم</string>
+    <string name="recv_alert_title">🚨 السيارة تتحرك!</string>
+    <string name="recv_alert_text">المس لفتح التطبيق</string>
+    <string name="recv_action_map">🗺 الخريطة</string>
+    <string name="recv_section_car">حالة السيارة</string>
+    <string name="info_alert">آخر إنذار</string>
+    <string name="info_pos">آخر موقع</string>
+    <string name="info_alive">آخر إشارة حياة</string>
+    <string name="info_none">—</string>
+    <string name="btn_open_map">🗺 فتح الخريطة</string>
+    <string name="msg_no_pos">لا يوجد موقع بعد</string>
+    <string name="ch_recv">استقبال AutoAlert</string>
+    <string name="ch_alert">إنذارات السيارة</string>
+</resources>

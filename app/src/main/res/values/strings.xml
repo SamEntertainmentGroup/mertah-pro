@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AutoAlert Online</string>
+
+    <string name="status_active">Protection active</string>
+    <string name="status_inactive">Protection not active</string>
+    <string name="config_title">⚠ Setup required</string>
+    <string name="perm_notif">Notification permission</string>
+    <string name="perm_battery">Battery unrestricted</string>
+    <string name="btn_authorize">Allow</string>
+    <string name="btn_ok">✓ OK</string>
+    <string name="section_sensitivity">Sensitivity</string>
+    <string name="sens_normal">Normal</string>
+    <string name="sens_sensible">High</string>
+    <string name="sens_extreme">Extreme</string>
+    <string name="btn_activate">🟢 Activate protection</string>
+    <string name="btn_stop">🔴 Stop protection</string>
+    <string name="btn_plus">More</string>
+    <string name="msg_finish_config">Finish the setup first</string>
+    <string name="msg_activated">Protection activated</string>
+    <string name="msg_stopped">Protection stopped</string>
+    <string name="msg_allow_settings">Allow it in the app settings</string>
+    <string name="msg_locked_option">🔒 Unlock this level in More</string>
+
+    <string name="how_title">How it works</string>
+    <string name="how_1_title">1. Install the app on 2 phones.</string>
+    <string name="how_1_body">One stays in the car (with internet, WiFi or 4G, and GPS on), the other is yours.</string>
+    <string name="how_2_title">2. The car phone.</string>
+    <string name="how_2_body">Choose “In the car”, enter your secret code, set the sensitivity and activate the protection.</string>
+    <string name="how_3_title">3. Your phone.</string>
+    <string name="how_3_body">Choose “My phone”, enter the same code and start listening. If the car moves, you get an alarm with its GPS position.</string>
+    <string name="btn_unlock">🔓 Unlock sensitivity</string>
+    <string name="btn_share">🔗 Share the app</string>
+    <string name="btn_contact">💬 Contact</string>
+    <string name="btn_back">Back to home</string>
+    <string name="share_text">AutoAlert: an app that sends you an alarm with the GPS position if your car moves during the night.</string>
+    <string name="share_chooser">Share the app</string>
+
+    <string name="unlock_title">Unlock sensitivity</string>
+    <string name="unlock_intro">Choose the High or Extreme level for 12 months.</string>
+    <string name="unlock_status_on">Unlocked until %1$s</string>
+    <string name="unlock_status_off">Locked: Normal sensitivity only</string>
+    <string name="unlock_device_label">Your device code</string>
+    <string name="btn_copy">Copy</string>
+    <string name="msg_copied">Code copied</string>
+    <string name="btn_get_code">💬 Get an activation code</string>
+    <string name="unlock_enter_label">Enter the activation code</string>
+    <string name="unlock_code_hint">XXXXX-XXXXX</string>
+    <string name="btn_validate">Validate</string>
+    <string name="msg_code_ok">Sensitivity unlocked</string>
+    <string name="msg_code_invalid">Invalid code</string>
+    <string name="msg_code_expired">This code has expired</string>
+
+    <string name="notif_channel_name">Anti-theft protection</string>
+    <string name="notif_channel_desc">Anti-theft monitoring is on</string>
+    <string name="notif_title">Protection active</string>
+    <string name="notif_text">Monitoring movement</string>
+
+    <string name="perm_location">Location permission</string>
+    <string name="section_code">Secret code (same on both phones)</string>
+    <string name="code_hint">At least 8 characters (letters and digits)</string>
+    <string name="msg_invalid_code">Invalid code: 8 to 32 letters or digits</string>
+    <string name="role_title">What does this phone do?</string>
+    <string name="role_car">🚗 In the car</string>
+    <string name="role_car_desc">It watches and sends the alert</string>
+    <string name="role_receiver">📱 My phone</string>
+    <string name="role_receiver_desc">It receives the alarm and the position</string>
+    <string name="btn_change_role">🔄 Change mode</string>
+    <string name="role_confirm">Changing mode will stop the protection. Continue?</string>
+    <string name="recv_title">AutoAlert · Receiver</string>
+    <string name="recv_listening">Listening…</string>
+    <string name="recv_offline">⚠ No connection to the server</string>
+    <string name="recv_alert_title">🚨 The car is moving!</string>
+    <string name="recv_alert_text">Tap to open the app</string>
+    <string name="recv_action_map">🗺 Map</string>
+    <string name="recv_section_car">Car status</string>
+    <string name="info_alert">Last alert</string>
+    <string name="info_pos">Last position</string>
+    <string name="info_alive">Last sign of life</string>
+    <string name="info_none">—</string>
+    <string name="btn_open_map">🗺 Open map</string>
+    <string name="msg_no_pos">No position yet</string>
+    <string name="ch_recv">AutoAlert receiver</string>
+    <string name="ch_alert">Car alarms</string>
+</resources>

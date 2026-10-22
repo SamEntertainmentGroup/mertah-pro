@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AutoAlert Online</string>
+
+    <string name="status_active">Protection active</string>
+    <string name="status_inactive">Protection non active</string>
+    <string name="config_title">⚠ Configuration requise</string>
+    <string name="perm_notif">Autorisation de notification</string>
+    <string name="perm_battery">Batterie sans restriction</string>
+    <string name="btn_authorize">Autoriser</string>
+    <string name="btn_ok">✓ OK</string>
+    <string name="section_sensitivity">Sensibilité</string>
+    <string name="sens_normal">Normal</string>
+    <string name="sens_sensible">Sensible</string>
+    <string name="sens_extreme">Extrême</string>
+    <string name="btn_activate">🟢 Activer la protection</string>
+    <string name="btn_stop">🔴 Arrêter la protection</string>
+    <string name="btn_plus">Plus</string>
+    <string name="msg_finish_config">Termine d’abord la configuration</string>
+    <string name="msg_activated">Protection activée</string>
+    <string name="msg_stopped">Protection arrêtée</string>
+    <string name="msg_allow_settings">Autorise dans les réglages de l’appli</string>
+    <string name="msg_locked_option">🔒 Débloque ce niveau dans Plus</string>
+
+    <string name="how_title">Comment ça marche</string>
+    <string name="how_1_title">1. Installe l’app sur 2 téléphones.</string>
+    <string name="how_1_body">Un reste dans la voiture (avec internet WiFi ou 4G, et le GPS activé), l’autre est le tien.</string>
+    <string name="how_2_title">2. Téléphone de la voiture.</string>
+    <string name="how_2_body">Choisis « Dans la voiture », entre ton code secret, règle la sensibilité et active la protection.</string>
+    <string name="how_3_title">3. Ton téléphone.</string>
+    <string name="how_3_body">Choisis « Mon téléphone », entre le même code et active l’écoute. Si la voiture bouge, tu reçois une alarme avec sa position GPS.</string>
+    <string name="btn_unlock">🔓 Débloquer la sensibilité</string>
+    <string name="btn_share">🔗 Partager l’application</string>
+    <string name="btn_contact">💬 Contact</string>
+    <string name="btn_back">Retour à l’accueil</string>
+    <string name="share_text">AutoAlert : une application qui t’envoie une alarme avec la position GPS si ta voiture bouge pendant la nuit.</string>
+    <string name="share_chooser">Partager l’application</string>
+
+    <string name="unlock_title">Débloquer la sensibilité</string>
+    <string name="unlock_intro">Choisis le niveau Sensible ou Extrême pendant 12 mois.</string>
+    <string name="unlock_status_on">Débloqué jusqu’au %1$s</string>
+    <string name="unlock_status_off">Verrouillé : sensibilité Normale uniquement</string>
+    <string name="unlock_device_label">Ton code appareil</string>
+    <string name="btn_copy">Copier</string>
+    <string name="msg_copied">Code copié</string>
+    <string name="btn_get_code">💬 Obtenir un code d’activation</string>
+    <string name="unlock_enter_label">Entre le code d’activation</string>
+    <string name="unlock_code_hint">XXXXX-XXXXX</string>
+    <string name="btn_validate">Valider</string>
+    <string name="msg_code_ok">Sensibilité débloquée</string>
+    <string name="msg_code_invalid">Code invalide</string>
+    <string name="msg_code_expired">Ce code a expiré</string>
+
+    <string name="notif_channel_name">Protection antivol</string>
+    <string name="notif_channel_desc">Surveillance antivol active</string>
+    <string name="notif_title">Protection antivol active</string>
+    <string name="notif_text">Surveillance des mouvements en cours</string>
+
+    <string name="perm_location">Autorisation de localisation</string>
+    <string name="section_code">Code secret (le même sur les 2 téléphones)</string>
+    <string name="code_hint">8 caractères minimum (lettres et chiffres)</string>
+    <string name="msg_invalid_code">Code invalide : 8 à 32 lettres ou chiffres</string>
+    <string name="role_title">Que fait ce téléphone ?</string>
+    <string name="role_car">🚗 Dans la voiture</string>
+    <string name="role_car_desc">Il surveille et envoie l’alerte</string>
+    <string name="role_receiver">📱 Mon téléphone</string>
+    <string name="role_receiver_desc">Il reçoit l’alarme et la position</string>
+    <string name="btn_change_role">🔄 Changer de mode</string>
+    <string name="role_confirm">Changer de mode arrêtera la protection. Continuer ?</string>
+    <string name="recv_title">AutoAlert · Récepteur</string>
+    <string name="recv_listening">Écoute en cours…</string>
+    <string name="recv_offline">⚠ Pas de connexion au serveur</string>
+    <string name="recv_alert_title">🚨 La voiture bouge !</string>
+    <string name="recv_alert_text">Touche pour ouvrir l’application</string>
+    <string name="recv_action_map">🗺 Carte</string>
+    <string name="recv_section_car">État de la voiture</string>
+    <string name="info_alert">Dernière alerte</string>
+    <string name="info_pos">Dernière position</string>
+    <string name="info_alive">Signe de vie</string>
+    <string name="info_none">—</string>
+    <string name="btn_open_map">🗺 Ouvrir la carte</string>
+    <string name="msg_no_pos">Pas encore de position</string>
+    <string name="ch_recv">Récepteur AutoAlert</string>
+    <string name="ch_alert">Alarmes voiture</string>
+</resources>

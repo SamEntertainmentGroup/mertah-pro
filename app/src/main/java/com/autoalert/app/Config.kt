@@ -1,0 +1,12 @@
+package com.autoalert.app
+
+object Config {
+    // Adresse de ton site WordPress (https, sans « / » à la fin)
+    const val SERVER = "https://TON-SITE.com"
+
+    const val POLL_MS = 10_000L            // le récepteur interroge le serveur toutes les 10 s
+    const val POS_EVERY_MS = 15_000L       // la voiture envoie sa position toutes les 15 s
+    const val TRACK_MS = 15 * 60_000L      // durée de suivi GPS après une alerte
+    const val PING_EVERY_MS = 5 * 60_000L  // signe de vie de la voiture
+    const val ALERT_COOLDOWN_MS = 60_000L  // délai minimum entre 2 alertes
+}
