@@ -93,11 +93,11 @@ class MotionService : Service(), SensorEventListener {
         }
     }
 
-    // Signe de vie
-    private val pinger = object : Runnable {
+    // La voiture vérifie régulièrement si le récepteur l'interroge (et signale qu'elle est en vie)
+    private val cmdPoller = object : Runnable {
         override fun run() {
-            send("ping")
-            handler.postDelayed(this, Config.PING_EVERY_MS)
+            pollCmd()
+            handler.postDelayed(this, Config.CMD_EVERY_MS)
         }
     }
 
@@ -152,8 +152,8 @@ class MotionService : Service(), SensorEventListener {
         sensorManager.unregisterListener(this)
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME)
 
-        handler.removeCallbacks(pinger)
-        handler.postDelayed(pinger, 5_000L)
+        handler.removeCallbacks(cmdPoller)
+        handler.postDelayed(cmdPoller, 3_000L)
 
         return START_STICKY
     }
@@ -243,6 +243,32 @@ class MotionService : Service(), SensorEventListener {
         }
     }
 
+    private fun pollCmd() {
+        val prefs = getSharedPreferences("p", MODE_PRIVATE)
+        val code = prefs.getString("code", "") ?: ""
+        if (code.isEmpty()) return
+
+        val o = JSONObject().put("code", code)
+        val bat = battery()
+        if (bat in 0..100) o.put("battery", bat)
+
+        Api.postForResult("cmd", o) { res ->
+            if (res == null) {
+                prefs.edit().putBoolean("c_fail", true).apply()
+            } else {
+                prefs.edit().putLong("c_ok_ms", System.currentTimeMillis())
+                    .putBoolean("c_fail", false).apply()
+                // Le récepteur demande la position : envoi immédiat + suivi GPS de 2 minutes
+                if (res.optString("cmd") == "locate") {
+                    handler.post {
+                        send("pos")
+                        startTracking(2 * 60_000L)
+                    }
+                }
+            }
+        }
+    }
+
     private fun battery(): Int = try {
         (getSystemService(BATTERY_SERVICE) as BatteryManager)
             .getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
@@ -261,8 +287,8 @@ class MotionService : Service(), SensorEventListener {
     }
 
     // SUIVI GPS
-    private fun startTracking() {
-        trackUntil = System.currentTimeMillis() + Config.TRACK_MS
+    private fun startTracking(duration: Long = Config.TRACK_MS) {
+        trackUntil = maxOf(trackUntil, System.currentTimeMillis() + duration)
         if (tracking) return
         tracking = true
 

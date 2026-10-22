@@ -90,4 +90,8 @@
     <string name="link_none">🔴 No car found with this code</string>
     <string name="link_server">⚠ Server unreachable</string>
     <string name="link_off">⚪ Listening stopped</string>
+    <string name="ask_btn">📡 Ask the car</string>
+    <string name="ask_sent">Request sent: answer in ~20 seconds</string>
+    <string name="ask_fail">Could not send the request</string>
+    <string name="ask_start_first">Start listening first (round button)</string>
 </resources>

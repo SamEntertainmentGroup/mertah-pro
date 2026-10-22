@@ -42,6 +42,7 @@ class ReceiverActivity : Activity() {
     private lateinit var infoPos: TextView
     private lateinit var infoAlive: TextView
     private lateinit var mapBtn: Button
+    private lateinit var askBtn: Button
 
     private val handler = Handler(Looper.getMainLooper())
     private val ticker = object : Runnable {
@@ -115,6 +116,16 @@ class ReceiverActivity : Activity() {
         infoCard.addView(infoAlert)
         infoCard.addView(infoPos)
         infoCard.addView(infoAlive)
+        askBtn = Button(this).apply {
+            text = getString(R.string.ask_btn)
+            isAllCaps = false
+            textSize = 15f
+            setTextColor(NOIR)
+            background = rounded(Color.WHITE, NOIR, 12)
+            stateListAnimator = null
+            setOnClickListener { askCar() }
+        }
+        infoCard.addView(askBtn, LinearLayout.LayoutParams(-1, dp(48)).apply { topMargin = dp(10) })
         mapBtn = Button(this).apply {
             text = getString(R.string.btn_open_map)
             isAllCaps = false
@@ -254,6 +265,20 @@ class ReceiverActivity : Activity() {
         }
 
         mapBtn.alpha = if (lat != null && lng != null) 1f else 0.45f
+    }
+
+    // Demande à la voiture d'envoyer sa position maintenant
+    private fun askCar() {
+        val p = getSharedPreferences("p", MODE_PRIVATE)
+        if (!p.getBoolean("r_active", false)) {
+            Toast.makeText(this, R.string.ask_start_first, Toast.LENGTH_LONG).show()
+            return
+        }
+        val code = p.getString("code", "") ?: ""
+        Toast.makeText(this, R.string.ask_sent, Toast.LENGTH_LONG).show()
+        Api.postAsync("ask", org.json.JSONObject().put("code", code)) { ok ->
+            if (!ok) runOnUiThread { Toast.makeText(this, R.string.ask_fail, Toast.LENGTH_LONG).show() }
+        }
     }
 
     private fun openMap() {

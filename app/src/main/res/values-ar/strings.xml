@@ -90,4 +90,8 @@
     <string name="link_none">🔴 لا توجد سيارة بهذا الرمز</string>
     <string name="link_server">⚠ الخادم غير متاح</string>
     <string name="link_off">⚪ الاستماع متوقف</string>
+    <string name="ask_btn">📡 استعلام عن السيارة</string>
+    <string name="ask_sent">تم إرسال الطلب: الرد خلال ~20 ثانية</string>
+    <string name="ask_fail">تعذر إرسال الطلب</string>
+    <string name="ask_start_first">فعّل الاستماع أولاً (الزر الدائري)</string>
 </resources>

@@ -32,6 +32,11 @@ object Api {
         }
     }
 
+    // Un seul essai en arrière-plan, avec la réponse (null en cas d'échec)
+    fun postForResult(path: String, body: JSONObject, onResult: (JSONObject?) -> Unit) {
+        io.execute { onResult(post(path, body)) }
+    }
+
     // Envoi en arrière-plan avec 3 tentatives
     fun postAsync(path: String, body: JSONObject, onResult: ((Boolean) -> Unit)? = null) {
         io.execute {

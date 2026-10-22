@@ -90,4 +90,8 @@
     <string name="link_none">🔴 Aucune voiture trouvée avec ce code</string>
     <string name="link_server">⚠ Serveur injoignable</string>
     <string name="link_off">⚪ Écoute arrêtée</string>
+    <string name="ask_btn">📡 Interroger la voiture</string>
+    <string name="ask_sent">Demande envoyée : réponse dans ~20 secondes</string>
+    <string name="ask_fail">Échec de l’envoi de la demande</string>
+    <string name="ask_start_first">Active d’abord l’écoute (bouton rond)</string>
 </resources>
