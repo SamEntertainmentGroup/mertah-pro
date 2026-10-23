@@ -94,4 +94,21 @@
     <string name="ask_sent">تم إرسال الطلب: الرد خلال ~20 ثانية</string>
     <string name="ask_fail">تعذر إرسال الطلب</string>
     <string name="ask_start_first">فعّل الاستماع أولاً (الزر الدائري)</string>
+    <string name="gen_btn">🎲 توليد رمز</string>
+    <string name="qr_btn">📱 عرض QR</string>
+    <string name="qr_title">امسح هذا الرمز بهاتف الاستقبال</string>
+    <string name="scan_btn">📷 مسح الرمز (QR)</string>
+    <string name="scan_ok">تم استلام الرمز ✅</string>
+    <string name="scan_bad">هذا الرمز ليس رمز AutoAlert</string>
+    <string name="scan_fail">الماسح غير متاح (يتطلب خدمات Google Play)</string>
+    <string name="scan_locked">أوقف الاستماع لتغيير الرمز</string>
+    <string name="recv_lost_title">⚠ السيارة لا تستجيب</string>
+    <string name="recv_lost_text">لا إشارة منذ %1$d دقيقة (الهاتف مطفأ أو بلا إنترنت؟)</string>
+    <string name="recv_off_title">ℹ تم إيقاف حماية السيارة</string>
+    <string name="recv_off_text">تم إيقاف هاتف السيارة.</string>
+    <string name="link_car_off">⚪ السيارة معطلة</string>
+    <string name="ch_info">معلومات السيارة</string>
+    <string name="ch_boot">إعادة تشغيل السيارة</string>
+    <string name="boot_title">🔓 توقفت الحماية بعد إعادة التشغيل</string>
+    <string name="boot_text">المس لإعادة تفعيل الحماية</string>
 </resources>

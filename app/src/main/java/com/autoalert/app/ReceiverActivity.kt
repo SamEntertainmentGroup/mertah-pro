@@ -19,6 +19,9 @@ import android.text.InputFilter
 import android.text.InputType
 import android.view.Gravity
 import android.view.View
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
@@ -43,6 +46,10 @@ class ReceiverActivity : Activity() {
     private lateinit var infoAlive: TextView
     private lateinit var mapBtn: Button
     private lateinit var askBtn: Button
+    private lateinit var web: WebView
+    private var mapReady = false
+    private var shownTs = -1L
+    private var shownTrace = ""
 
     private val handler = Handler(Looper.getMainLooper())
     private val ticker = object : Runnable {
@@ -100,6 +107,18 @@ class ReceiverActivity : Activity() {
             background = rounded(Color.WHITE, Color.rgb(220, 223, 229), 12)
         }
         codeCard.addView(codeInput)
+        codeCard.addView(
+            Button(this).apply {
+                text = getString(R.string.scan_btn)
+                isAllCaps = false
+                textSize = 14f
+                setTextColor(NOIR)
+                background = rounded(Color.WHITE, NOIR, 12)
+                stateListAnimator = null
+                setOnClickListener { scanCode() }
+            },
+            LinearLayout.LayoutParams(-1, dp(46)).apply { topMargin = dp(10) }
+        )
         root.addView(codeCard)
 
         // ÉTAT DE LA VOITURE
@@ -110,6 +129,26 @@ class ReceiverActivity : Activity() {
             setTypeface(null, Typeface.BOLD)
         }
         infoCard.addView(linkText)
+
+        // Petite carte : position de la voiture et trajet
+        web = WebView(this).apply {
+            settings.javaScriptEnabled = true
+            setOnTouchListener { v, _ ->
+                v.parent.requestDisallowInterceptTouchEvent(true)
+                false
+            }
+            webViewClient = object : WebViewClient() {
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    mapReady = true
+                    updateMap(true)
+                }
+            }
+            loadDataWithBaseURL(Config.SERVER + "/", MAP_HTML, "text/html", "UTF-8", null)
+        }
+        infoCard.addView(web, LinearLayout.LayoutParams(-1, dp(240)).apply {
+            topMargin = dp(8)
+            bottomMargin = dp(8)
+        })
         infoAlert = infoLine()
         infoPos = infoLine()
         infoAlive = infoLine()
@@ -149,8 +188,11 @@ class ReceiverActivity : Activity() {
             minimumHeight = 0
             stateListAnimator = null
         }
+        // Le bouton rond s'adapte à la largeur du téléphone
+        val toggleSize = minOf(dp(250), (resources.displayMetrics.widthPixels * 0.7f).toInt())
+        toggleBtn.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, toggleSize * 0.3f)
         val toggleBox = FrameLayout(this).apply { setPadding(0, dp(30), 0, dp(20)) }
-        toggleBox.addView(toggleBtn, FrameLayout.LayoutParams(dp(250), dp(250), Gravity.CENTER_HORIZONTAL))
+        toggleBox.addView(toggleBtn, FrameLayout.LayoutParams(toggleSize, toggleSize, Gravity.CENTER_HORIZONTAL))
         root.addView(toggleBox)
 
         // PLUS
@@ -195,6 +237,8 @@ class ReceiverActivity : Activity() {
                 .putString("code", code)
                 .putLong("r_since", -1L)
                 .putLong("r_poll_ms", 0L)
+                .putBoolean("r_lost", false)
+                .putBoolean("r_off", false)
                 .putBoolean("r_active", true)
                 .apply()
 
@@ -210,7 +254,10 @@ class ReceiverActivity : Activity() {
     override fun onResume() {
         super.onResume()
         AlertSound.stop()
-        getSystemService(NotificationManager::class.java).cancel(ReceiverService.ID_ALERT)
+        getSystemService(NotificationManager::class.java).apply {
+            cancel(ReceiverService.ID_ALERT)
+            cancel(ReceiverService.ID_LOST)
+        }
         refreshConfig()
         handler.removeCallbacks(ticker)
         handler.post(ticker)
@@ -258,6 +305,7 @@ class ReceiverActivity : Activity() {
             !p.getBoolean("r_active", false) -> getString(R.string.link_off)
             pollMs == 0L || now - pollMs > 60_000L -> getString(R.string.link_server)
             age < 0 -> getString(R.string.link_none)
+            p.getBoolean("r_off", false) -> getString(R.string.link_car_off)
             else -> {
                 val min = ((age + (now - pollMs) / 1000) / 60).toInt().coerceAtLeast(1)
                 if (min <= 12) getString(R.string.link_ok, min) else getString(R.string.link_old, min)
@@ -265,6 +313,53 @@ class ReceiverActivity : Activity() {
         }
 
         mapBtn.alpha = if (lat != null && lng != null) 1f else 0.45f
+        updateMap()
+    }
+
+    private fun updateMap(force: Boolean = false) {
+        if (!mapReady) return
+        val p = getSharedPreferences("p", MODE_PRIVATE)
+        val lat = p.getString("r_lat", null) ?: return
+        val lng = p.getString("r_lng", null) ?: return
+        val ts = p.getLong("r_pos_ts", 0L)
+        val trace = p.getString("r_trace", "") ?: ""
+        if (!force && ts == shownTs && trace == shownTrace) return
+        shownTs = ts
+        shownTrace = trace
+        val acc = p.getInt("r_acc", 0)
+        val pts = trace.split(";").filter { it.contains(",") }
+            .joinToString(",", "[", "]") { "[$it]" }
+        web.evaluateJavascript("setCar($lat,$lng,$acc,$pts)", null)
+    }
+
+    private fun scanCode() {
+        if (!codeInput.isEnabled) {
+            Toast.makeText(this, R.string.scan_locked, Toast.LENGTH_LONG).show()
+            return
+        }
+        try {
+            GmsBarcodeScanning.getClient(this).startScan()
+                .addOnSuccessListener { b ->
+                    val code = (b.rawValue ?: "").removePrefix("autoalert:").trim()
+                    if (code.matches(Regex("^[A-Za-z0-9]{8,32}$"))) {
+                        codeInput.setText(code)
+                        Toast.makeText(this, R.string.scan_ok, Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, R.string.scan_bad, Toast.LENGTH_LONG).show()
+                    }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, R.string.scan_fail, Toast.LENGTH_LONG).show()
+                }
+        } catch (_: Exception) {
+            Toast.makeText(this, R.string.scan_fail, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    override fun onDestroy() {
+        handler.removeCallbacks(ticker)
+        if (::web.isInitialized) web.destroy()
+        super.onDestroy()
     }
 
     // Demande à la voiture d'envoyer sa position maintenant
@@ -412,3 +507,28 @@ class ReceiverActivity : Activity() {
 
     private fun dp(v: Int) = (v * resources.displayMetrics.density).roundToInt()
 }
+
+
+private const val MAP_HTML = """<!DOCTYPE html><html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>html,body,#m{height:100%;margin:0}.car{font-size:28px;line-height:28px;text-align:center}</style>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head><body><div id="m"></div>
+<script>
+var map=L.map('m').setView([28.0,2.5],5);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'OpenStreetMap'}).addTo(map);
+var mk=null,ci=null,first=true;
+var tr=L.polyline([],{color:'#c51625',weight:4}).addTo(map);
+function setCar(lat,lng,acc,pts){
+  var p=[lat,lng];
+  if(!mk){
+    mk=L.marker(p,{icon:L.divIcon({className:'car',html:'&#128663;',iconSize:[28,28],iconAnchor:[14,14]})}).addTo(map);
+    ci=L.circle(p,{radius:acc||0,color:'#1a73e8',weight:1,fillOpacity:0.1}).addTo(map);
+  }else{
+    mk.setLatLng(p);ci.setLatLng(p);ci.setRadius(acc||0);
+  }
+  tr.setLatLngs(pts);
+  if(first){map.setView(p,16);first=false;}else{map.panTo(p);}
+}
+</script></body></html>"""

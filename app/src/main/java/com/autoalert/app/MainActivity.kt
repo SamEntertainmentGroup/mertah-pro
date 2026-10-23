@@ -18,6 +18,7 @@ import android.text.InputFilter
 import android.text.InputType
 import android.view.Gravity
 import android.view.View
+import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import kotlin.math.roundToInt
@@ -28,6 +29,7 @@ class MainActivity : Activity() {
     private lateinit var banner: TextView
     private lateinit var phoneInput: EditText
     private lateinit var linkText: TextView
+    private lateinit var genBtn: Button
     private lateinit var sensitivityBar: SeekBar
     private val sensitivityLabels = mutableListOf<TextView>()
     private lateinit var toggleBtn: Button
@@ -48,6 +50,8 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
         val prefs = getSharedPreferences("p", MODE_PRIVATE)
 
@@ -150,6 +154,32 @@ class MainActivity : Activity() {
 
         phoneCard.addView(phoneInput)
 
+        // Générer un code / afficher le QR pour le récepteur
+        val pairRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, dp(10), 0, 0)
+        }
+        fun pairButton(label: String, onClick: () -> Unit) = Button(this).apply {
+            text = label
+            isAllCaps = false
+            textSize = 13f
+            setTextColor(Color.rgb(35, 38, 45))
+            background = GradientDrawable().apply {
+                setColor(Color.WHITE)
+                cornerRadius = dp(12).toFloat()
+                setStroke(dp(1), Color.rgb(35, 38, 45))
+            }
+            stateListAnimator = null
+            setOnClickListener { onClick() }
+        }
+        genBtn = pairButton(getString(R.string.gen_btn)) {
+            phoneInput.setText(Pairing.newCode())
+        }
+        val qrBtn = pairButton(getString(R.string.qr_btn)) { showQr() }
+        pairRow.addView(genBtn, LinearLayout.LayoutParams(0, dp(46), 1f).apply { marginEnd = dp(6) })
+        pairRow.addView(qrBtn, LinearLayout.LayoutParams(0, dp(46), 1f))
+        phoneCard.addView(pairRow)
+
         linkText = TextView(this).apply {
             textSize = 14f
             setTextColor(Color.rgb(90, 95, 105))
@@ -241,7 +271,7 @@ class MainActivity : Activity() {
         }
 
         val toggleBox = FrameLayout(this).apply {
-            setPadding(0, dp(40), 0, dp(25))
+            setPadding(0, dp(16), 0, dp(16))
         }
 
         toggleBox.addView(
@@ -249,11 +279,18 @@ class MainActivity : Activity() {
             FrameLayout.LayoutParams(
                 dp(250),
                 dp(250),
-                Gravity.CENTER_HORIZONTAL
+                Gravity.CENTER
             )
         )
         
-        root.addView(toggleBox)
+        root.addView(
+            toggleBox,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f
+            )
+        )
 
         // BOUTON PLUS
         val plusButton = Button(this).apply {
@@ -380,6 +417,10 @@ class MainActivity : Activity() {
         )
 
         setContentView(frame)
+
+        root.viewTreeObserver.addOnGlobalLayoutListener {
+            fitToggle(scroll.height, toggleBox)
+        }
     }
 
     override fun onResume() {
@@ -389,6 +430,36 @@ class MainActivity : Activity() {
         refreshSensitivity()
         handler.removeCallbacks(linkTicker)
         handler.post(linkTicker)
+
+        // Après un redémarrage ou un arrêt par le système : on relance la protection
+        val pp = getSharedPreferences("p", MODE_PRIVATE)
+        if (pp.getString("role", null) == "car" &&
+            pp.getBoolean("active", false) &&
+            !MotionService.running &&
+            allOk()
+        ) {
+            try {
+                startForegroundService(Intent(this, MotionService::class.java))
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    private fun showQr() {
+        val code = phoneInput.text.toString().trim()
+        if (!code.matches(Regex("^[A-Za-z0-9]{8,32}$"))) {
+            Toast.makeText(this, R.string.msg_invalid_code, Toast.LENGTH_LONG).show()
+            return
+        }
+        val img = ImageView(this).apply {
+            setImageBitmap(Pairing.qrBitmap("autoalert:$code"))
+            setPadding(dp(20), dp(20), dp(20), dp(20))
+        }
+        android.app.AlertDialog.Builder(this)
+            .setTitle(R.string.qr_title)
+            .setView(img)
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 
     override fun onPause() {
@@ -761,6 +832,7 @@ class MainActivity : Activity() {
         // Code verrouillé tant que la protection est active
         phoneInput.isEnabled = !active
         phoneInput.alpha = if (active) 0.5f else 1f
+        genBtn.isEnabled = !active
         refreshLink()
     }
 
@@ -786,6 +858,26 @@ class MainActivity : Activity() {
             label.setTextColor(
                 if (on) Color.rgb(35, 38, 45) else Color.rgb(140, 145, 155)
             )
+        }
+    }
+
+    // Le bouton rond occupe l'espace libre entre la sensibilité et le bouton Plus
+    private fun fitToggle(viewportHeight: Int, box: View) {
+        var used = root.paddingTop + root.paddingBottom + box.paddingTop + box.paddingBottom
+
+        for (i in 0 until root.childCount) {
+            val child = root.getChildAt(i)
+            if (child === box || child.visibility == View.GONE) continue
+            val lp = child.layoutParams as LinearLayout.LayoutParams
+            used += child.height + lp.topMargin + lp.bottomMargin
+        }
+
+        val width = root.width - root.paddingLeft - root.paddingRight
+        val size = minOf(width, viewportHeight - used).coerceIn(dp(120), dp(300))
+
+        if (toggleBtn.layoutParams.width != size) {
+            toggleBtn.layoutParams = FrameLayout.LayoutParams(size, size, Gravity.CENTER)
+            toggleBtn.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, size * 0.3f)
         }
     }
 

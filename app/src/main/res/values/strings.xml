@@ -94,4 +94,21 @@
     <string name="ask_sent">Request sent: answer in ~20 seconds</string>
     <string name="ask_fail">Could not send the request</string>
     <string name="ask_start_first">Start listening first (round button)</string>
+    <string name="gen_btn">🎲 Generate a code</string>
+    <string name="qr_btn">📱 Show QR</string>
+    <string name="qr_title">Scan this QR with the receiver phone</string>
+    <string name="scan_btn">📷 Scan the code (QR)</string>
+    <string name="scan_ok">Code received ✅</string>
+    <string name="scan_bad">This QR is not an AutoAlert code</string>
+    <string name="scan_fail">Scanner unavailable (Google Play Services required)</string>
+    <string name="scan_locked">Stop listening to change the code</string>
+    <string name="recv_lost_title">⚠ The car is not responding</string>
+    <string name="recv_lost_text">No sign for %1$d min (phone off or no internet?)</string>
+    <string name="recv_off_title">ℹ Car protection turned off</string>
+    <string name="recv_off_text">The car phone was stopped.</string>
+    <string name="link_car_off">⚪ Car deactivated</string>
+    <string name="ch_info">Car info</string>
+    <string name="ch_boot">Car restart</string>
+    <string name="boot_title">🔓 Protection stopped after restart</string>
+    <string name="boot_text">Tap to turn the protection back on</string>
 </resources>

@@ -30,6 +30,10 @@ class MotionService : Service(), SensorEventListener {
         private const val CHANNEL_ID = "antivol_channel"
         private const val NOTIFICATION_ID = 1
 
+        // Vrai tant que la protection tourne
+        @Volatile
+        var running = false
+
         // Armement après 30 secondes
         private const val ARMEMENT = 30_000L
 
@@ -41,6 +45,12 @@ class MotionService : Service(), SensorEventListener {
 
         // Suivi des dérives lentes de la position de repos (secondes)
         private const val TAU_LENT = 30f
+
+        // Contrôle du capteur toutes les 10 secondes
+        private const val CONTROLE = 10_000L
+
+        // Fréquence minimale attendue du capteur (mesures par seconde)
+        private const val FREQ_MIN = 20f
     }
 
     private var seuil = 0.3f
@@ -57,6 +67,24 @@ class MotionService : Service(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private lateinit var locMgr: LocationManager
     private var wakeLock: PowerManager.WakeLock? = null
+
+    private var events = 0
+    private var windowStart = 0L
+
+    // Relance le capteur et le wake lock si le système les a coupés ou ralentis
+    private val controle = object : Runnable {
+        override fun run() {
+            val now = System.currentTimeMillis()
+            val frequence = events * 1000f / (now - windowStart)
+
+            if (wakeLock?.isHeld == false) wakeLock?.acquire()
+            if (frequence < FREQ_MIN) registerSensor()
+
+            events = 0
+            windowStart = now
+            handler.postDelayed(this, CONTROLE)
+        }
+    }
 
     // GPS
     private var lastLoc: Location? = null
@@ -133,6 +161,7 @@ class MotionService : Service(), SensorEventListener {
             return START_NOT_STICKY
         }
 
+        running = true
         seuil = getSharedPreferences("p", MODE_PRIVATE).getFloat("seuil", 0.3f)
 
         val now = System.currentTimeMillis()
@@ -141,16 +170,15 @@ class MotionService : Service(), SensorEventListener {
         since = 0L
         hasLast = false
 
-        val accelerometer =
-            sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER, true)
-                ?: sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-        if (accelerometer == null) {
+        if (!registerSensor()) {
             stopSelf()
             return START_NOT_STICKY
         }
 
-        sensorManager.unregisterListener(this)
-        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME)
+        events = 0
+        windowStart = now
+        handler.removeCallbacks(controle)
+        handler.postDelayed(controle, CONTROLE)
 
         handler.removeCallbacks(cmdPoller)
         handler.postDelayed(cmdPoller, 3_000L)
@@ -158,8 +186,20 @@ class MotionService : Service(), SensorEventListener {
         return START_STICKY
     }
 
+    private fun registerSensor(): Boolean {
+        val accelerometer =
+            sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER, true)
+                ?: sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+                ?: return false
+
+        sensorManager.unregisterListener(this)
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME)
+        return true
+    }
+
     // DÉTECTION : écart entre la position actuelle du téléphone et sa position de repos
     override fun onSensorChanged(event: SensorEvent) {
+        events++
         val v = event.values
 
         if (!hasLast) {
@@ -224,7 +264,7 @@ class MotionService : Service(), SensorEventListener {
         val bat = battery()
         if (bat in 0..100) o.put("battery", bat)
 
-        if (type != "ping") {
+        if (type != "ping" && type != "off") {
             val l = lastLoc ?: lastKnown()
             if (l != null) {
                 o.put("lat", l.latitude)
@@ -342,6 +382,9 @@ class MotionService : Service(), SensorEventListener {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
+        // Prévient le récepteur que la protection est arrêtée volontairement
+        if (running) send("off")
+        running = false
         handler.removeCallbacksAndMessages(null)
         stopTracking()
         sensorManager.unregisterListener(this)

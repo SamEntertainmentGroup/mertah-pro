@@ -8,5 +8,6 @@ object Config {
     const val POS_EVERY_MS = 15_000L       // la voiture envoie sa position toutes les 15 s
     const val TRACK_MS = 15 * 60_000L      // durée de suivi GPS après une alerte
     const val CMD_EVERY_MS = 20_000L       // la voiture vérifie toutes les 20 s si on l'interroge
+    const val LOST_AFTER_SEC = 300L        // alarme si la voiture ne donne plus signe de vie depuis 5 min
     const val ALERT_COOLDOWN_MS = 60_000L  // délai minimum entre 2 alertes
 }

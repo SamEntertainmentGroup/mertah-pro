@@ -1,4 +1,3 @@
-
 package com.autoalert.app
 
 import android.app.Activity
@@ -170,6 +169,30 @@ class UnlockActivity : Activity() {
 
         root.addView(inputCard)
 
+        // VERSION DE L'APPLICATION
+        root.addView(
+            TextView(this).apply {
+                text = "v ${versionName()}"
+                textSize = 11f
+                gravity = Gravity.END
+                setTextColor(Color.rgb(140, 145, 155))
+            },
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        // ESPACE LIBRE : pousse le bouton Retour en bas de l'écran
+        root.addView(
+            View(this),
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f
+            )
+        )
+
         // RETOUR
         root.addView(
             backButton(getString(R.string.btn_back)) {
@@ -276,6 +299,15 @@ class UnlockActivity : Activity() {
             )
         }
     }
+
+    // VERSION INSTALLÉE
+    @Suppress("DEPRECATION")
+    private fun versionName(): String =
+        try {
+            packageManager.getPackageInfo(packageName, 0).versionName ?: ""
+        } catch (_: Exception) {
+            ""
+        }
 
     // ACTUALISER LE STATUT DU DÉBLOCAGE
     private fun refreshStatus() {

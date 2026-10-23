@@ -9,6 +9,7 @@ import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.text.Html
+import android.view.View
 import android.widget.*
 import kotlin.math.roundToInt
 
@@ -56,7 +57,7 @@ class PlusActivity : Activity() {
             LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 dp(56)
-            ).apply { topMargin = dp(12) }
+            ).apply { topMargin = dp(20) }
         )
 
         // PARTAGER
@@ -65,7 +66,7 @@ class PlusActivity : Activity() {
             LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 dp(56)
-            ).apply { topMargin = dp(12) }
+            ).apply { topMargin = dp(24) }
         )
 
         // CONTACT (Messenger)
@@ -83,7 +84,17 @@ class PlusActivity : Activity() {
             LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 dp(56)
-            ).apply { topMargin = dp(12) }
+            ).apply { topMargin = dp(24) }
+        )
+
+        // ESPACE LIBRE : pousse le bouton Retour en bas de l'écran
+        root.addView(
+            View(this),
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f
+            )
         )
 
         // RETOUR

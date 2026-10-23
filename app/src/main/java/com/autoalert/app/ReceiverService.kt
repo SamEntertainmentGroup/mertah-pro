@@ -22,6 +22,9 @@ class ReceiverService : Service() {
         const val CH_ALERT = "alert_channel"
         const val ID_FG = 1
         const val ID_ALERT = 2
+        const val ID_LOST = 3
+        const val ID_INFO = 4
+        const val CH_INFO = "info_channel"
     }
 
     @Volatile private var running = false
@@ -97,7 +100,22 @@ class ReceiverService : Service() {
             p.edit().putInt("r_battery", alive.optInt("battery")).apply()
         }
 
+        // Alarme si la voiture ne répond plus (téléphone éteint, sans internet...)
+        val off = alive?.optBoolean("off", false) ?: false
+        p.edit().putBoolean("r_off", off).apply()
+        val ageSec = alive?.optLong("age", 0L) ?: 0L
+        if (alive != null && !off && ageSec > Config.LOST_AFTER_SEC) {
+            if (!p.getBoolean("r_lost", false)) {
+                p.edit().putBoolean("r_lost", true).apply()
+                fireLost((ageSec / 60).toInt())
+            }
+        } else {
+            p.edit().putBoolean("r_lost", false).apply()
+        }
+
         var alert = false
+        var stopped = false
+        var trace = p.getString("r_trace", "") ?: ""
         val events = res.optJSONArray("events")
         if (events != null) {
             for (i in 0 until events.length()) {
@@ -113,7 +131,10 @@ class ReceiverService : Service() {
                     ed.putString("r_lat", e.getDouble("lat").toString())
                     ed.putString("r_lng", e.getDouble("lng").toString())
                     ed.putLong("r_pos_ts", ts)
+                    if (e.has("acc") && !e.isNull("acc")) ed.putInt("r_acc", e.optInt("acc"))
+                    trace = appendTrace(trace, e.getDouble("lat"), e.getDouble("lng"))
                 }
+                if (e.optString("type") == "off") stopped = true
                 if (e.optString("type") == "alert") {
                     ed.putLong("r_alert_ts", ts)
                     alert = true
@@ -122,9 +143,56 @@ class ReceiverService : Service() {
             }
         }
 
-        p.edit().putLong("r_since", res.optLong("last_id", since)).apply()
+        p.edit()
+            .putLong("r_since", res.optLong("last_id", since))
+            .putString("r_trace", trace)
+            .apply()
 
         if (alert) fireAlert()
+        if (stopped) notifyInfo(getString(R.string.recv_off_title), getString(R.string.recv_off_text))
+    }
+
+    // Les 60 dernières positions, pour tracer le trajet sur la carte
+    private fun appendTrace(t: String, lat: Double, lng: Double): String {
+        val pt = "$lat,$lng"
+        val list = if (t.isEmpty()) mutableListOf() else t.split(";").toMutableList()
+        if (list.lastOrNull() == pt) return t
+        list.add(pt)
+        return list.takeLast(60).joinToString(";")
+    }
+
+    private fun openApp(): PendingIntent = PendingIntent.getActivity(
+        this, 0,
+        Intent(this, ReceiverActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP),
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+
+    // ALARME : la voiture ne répond plus
+    private fun fireLost(min: Int) {
+        AlertSound.play(this)
+        val n = Notification.Builder(this, CH_ALERT)
+            .setSmallIcon(android.R.drawable.ic_dialog_alert)
+            .setContentTitle(getString(R.string.recv_lost_title))
+            .setContentText(getString(R.string.recv_lost_text, min))
+            .setContentIntent(openApp())
+            .setAutoCancel(true)
+            .setCategory(Notification.CATEGORY_ALARM)
+            .setVisibility(Notification.VISIBILITY_PUBLIC)
+            .build()
+        getSystemService(NotificationManager::class.java).notify(ID_LOST, n)
+    }
+
+    // Information simple, sans alarme
+    private fun notifyInfo(title: String, text: String) {
+        val n = Notification.Builder(this, CH_INFO)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setContentIntent(openApp())
+            .setAutoCancel(true)
+            .build()
+        getSystemService(NotificationManager::class.java).notify(ID_INFO, n)
     }
 
     // ALARME : bip + notification
@@ -177,6 +245,10 @@ class ReceiverService : Service() {
         m.createNotificationChannel(
             NotificationChannel(CH_FG, getString(R.string.ch_recv), NotificationManager.IMPORTANCE_LOW)
                 .apply { setShowBadge(false) }
+        )
+
+        m.createNotificationChannel(
+            NotificationChannel(CH_INFO, getString(R.string.ch_info), NotificationManager.IMPORTANCE_DEFAULT)
         )
 
         // Le bip est joué par AlertSound (volume d'alarme)
