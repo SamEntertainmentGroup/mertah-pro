@@ -119,8 +119,8 @@
     <string name="recv_btn_on">🔒 الاستماع نشط</string>
     <string name="recv_btn_off">🔓 الاستماع متوقف</string>
     <string name="role_subtitle">ثبّت التطبيق على هاتفين: واحد في السيارة والآخر معك.</string>
-    <string name="role_car_short">داخل السيارة</string>
-    <string name="role_receiver_short">هاتفي (جهاز الاستقبال)</string>
+    <string name="role_car_short">هاتف السيارة (يرسل الإنذارات)</string>
+    <string name="role_receiver_short">هاتفي (يستقبل الإنذارات)</string>
     <string name="role_confirm_title">أكّد اختيارك</string>
     <string name="dialog_ok">فهمت</string>
     <string name="dialog_cancel">إلغاء</string>

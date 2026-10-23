@@ -28,7 +28,7 @@ class RoleActivity : Activity() {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_VERTICAL
-            setPadding(dp(20), dp(24), dp(20), dp(24))
+            setPadding(dp(20), dp(36), dp(20), dp(36))
         }
         val scroll = ScrollView(this).apply {
             isFillViewport = true
@@ -42,13 +42,13 @@ class RoleActivity : Activity() {
             textSize = 22f
             setTypeface(null, Typeface.BOLD)
             setTextColor(NOIR)
-            setPadding(dp(2), 0, dp(2), dp(6))
+            setPadding(dp(2), 0, dp(2), dp(12))
         })
         root.addView(TextView(this).apply {
             text = getString(R.string.role_subtitle)
             textSize = 15f
             setTextColor(Color.rgb(90, 95, 105))
-            setPadding(dp(2), 0, dp(2), dp(20))
+            setPadding(dp(2), 0, dp(2), dp(36))
         })
 
         // LES DEUX CARTES (même largeur, espace régulier)
@@ -66,7 +66,7 @@ class RoleActivity : Activity() {
             confirm("receiver", getString(R.string.role_receiver_short)) { select(receiver, false) }
         }
 
-        val gap = dp(12)
+        val gap = dp(24)
         root.addView(car.root, LinearLayout.LayoutParams(-1, LinearLayout.LayoutParams.WRAP_CONTENT))
         root.addView(
             receiver.root,
@@ -77,7 +77,7 @@ class RoleActivity : Activity() {
         val note = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            setPadding(dp(14), dp(10), dp(14), dp(10))
+            setPadding(dp(16), dp(14), dp(16), dp(14))
             background = GradientDrawable().apply {
                 setColor(Color.rgb(238, 242, 250))
                 cornerRadius = dp(12).toFloat()
@@ -100,7 +100,7 @@ class RoleActivity : Activity() {
         )
         root.addView(
             note,
-            LinearLayout.LayoutParams(-1, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(18) }
+            LinearLayout.LayoutParams(-1, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(36) }
         )
 
         setContentView(scroll)
@@ -111,8 +111,8 @@ class RoleActivity : Activity() {
         val card = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            setPadding(dp(16), dp(14), dp(16), dp(14))
-            minimumHeight = dp(84)
+            setPadding(dp(18), dp(20), dp(18), dp(20))
+            minimumHeight = dp(104)
             isClickable = true
             isFocusable = true
         }
@@ -136,7 +136,7 @@ class RoleActivity : Activity() {
             textSize = 14f
             maxLines = 2
             setTextColor(Color.rgb(90, 95, 105))
-            setPadding(0, dp(2), 0, 0)
+            setPadding(0, dp(6), 0, 0)
         })
         card.addView(
             texts,

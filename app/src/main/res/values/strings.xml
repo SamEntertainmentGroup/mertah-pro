@@ -119,8 +119,8 @@
     <string name="recv_btn_on">🔒 Listening</string>
     <string name="recv_btn_off">🔓 Listening stopped</string>
     <string name="role_subtitle">Install the app on 2 phones: one in the car, the other with you.</string>
-    <string name="role_car_short">in the car</string>
-    <string name="role_receiver_short">my phone (receiver)</string>
+    <string name="role_car_short">the car phone (it sends the alerts)</string>
+    <string name="role_receiver_short">my phone (it receives the alerts)</string>
     <string name="role_confirm_title">Confirm your choice</string>
     <string name="dialog_ok">Got it</string>
     <string name="dialog_cancel">Cancel</string>

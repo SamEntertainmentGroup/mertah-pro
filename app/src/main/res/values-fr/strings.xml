@@ -119,8 +119,8 @@
     <string name="recv_btn_on">🔒 Écoute active</string>
     <string name="recv_btn_off">🔓 Écoute arrêtée</string>
     <string name="role_subtitle">Installe l’app sur 2 téléphones : un dans la voiture, l’autre avec toi.</string>
-    <string name="role_car_short">dans la voiture</string>
-    <string name="role_receiver_short">mon téléphone (récepteur)</string>
+    <string name="role_car_short">le téléphone de la voiture (il envoie les alertes)</string>
+    <string name="role_receiver_short">mon téléphone (il reçoit les alertes)</string>
     <string name="role_confirm_title">Confirmer ton choix</string>
     <string name="dialog_ok">Compris</string>
     <string name="dialog_cancel">Annuler</string>
