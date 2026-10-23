@@ -2,7 +2,6 @@ package com.autoalert.app
 
 import android.Manifest
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.NotificationManager
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -307,11 +306,11 @@ class ReceiverActivity : Activity() {
         sb.append("\n\n💚 ${getString(R.string.info_alive)} :\n${t(aliveMs)}")
         if (p.contains("r_battery")) sb.append("\n\n🔋 ${p.getInt("r_battery", 0)}%")
 
-        AlertDialog.Builder(this)
-            .setTitle(R.string.details_title)
-            .setMessage(sb.toString())
-            .setPositiveButton(android.R.string.ok, null)
-            .show()
+        AppDialog.show(
+            this,
+            title = getString(R.string.details_title),
+            message = sb.toString()
+        )
     }
 
     // CARTE

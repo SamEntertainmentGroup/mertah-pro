@@ -60,11 +60,11 @@
     <string name="section_code">Car code (scan the QR or type it)</string>
     <string name="code_hint">At least 8 characters (letters and digits)</string>
     <string name="msg_invalid_code">Invalid code: 8 to 32 letters or digits</string>
-    <string name="role_title">What does this phone do?</string>
-    <string name="role_car">🚗 In the car</string>
-    <string name="role_car_desc">It watches and sends the alert</string>
-    <string name="role_receiver">📱 My phone</string>
-    <string name="role_receiver_desc">It receives the alarm and the position</string>
+    <string name="role_title">What is this phone’s role?</string>
+    <string name="role_car">It stays in the car</string>
+    <string name="role_car_desc">It detects any movement of the car, then sends the alert and its GPS position over the internet. Leave it plugged in and hidden in the car.</string>
+    <string name="role_receiver">This is my phone</string>
+    <string name="role_receiver_desc">It rings when the car moves and shows its position on a map. Keep it with you at all times.</string>
     <string name="btn_change_role">🔄 Change mode</string>
     <string name="role_confirm">Changing mode will stop the protection. Continue?</string>
     <string name="recv_title">AutoAlert · Receiver</string>
@@ -118,4 +118,10 @@
     <string name="details_title">Car details</string>
     <string name="recv_btn_on">🔒 Listening</string>
     <string name="recv_btn_off">🔓 Listening stopped</string>
+    <string name="role_subtitle">Tap the option that matches this phone. The app must be installed on 2 phones: one in the car, the other with you.</string>
+    <string name="role_car_short">in the car</string>
+    <string name="role_receiver_short">my phone (receiver)</string>
+    <string name="role_confirm_title">Confirm your choice</string>
+    <string name="dialog_ok">Got it</string>
+    <string name="dialog_cancel">Cancel</string>
 </resources>

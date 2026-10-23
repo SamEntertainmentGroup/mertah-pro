@@ -60,11 +60,11 @@
     <string name="section_code">Code de la voiture (scanne le QR ou saisis-le)</string>
     <string name="code_hint">8 caractères minimum (lettres et chiffres)</string>
     <string name="msg_invalid_code">Code invalide : 8 à 32 lettres ou chiffres</string>
-    <string name="role_title">Que fait ce téléphone ?</string>
-    <string name="role_car">🚗 Dans la voiture</string>
-    <string name="role_car_desc">Il surveille et envoie l’alerte</string>
-    <string name="role_receiver">📱 Mon téléphone</string>
-    <string name="role_receiver_desc">Il reçoit l’alarme et la position</string>
+    <string name="role_title">Quel est le rôle de ce téléphone ?</string>
+    <string name="role_car">Il reste dans la voiture</string>
+    <string name="role_car_desc">Il détecte le moindre mouvement de la voiture, puis envoie l’alerte et sa position GPS sur internet. À laisser branché et caché dans la voiture.</string>
+    <string name="role_receiver">C’est mon téléphone</string>
+    <string name="role_receiver_desc">Il sonne quand la voiture bouge et montre sa position sur une carte. À garder toujours avec toi.</string>
     <string name="btn_change_role">🔄 Changer de mode</string>
     <string name="role_confirm">Changer de mode arrêtera la protection. Continuer ?</string>
     <string name="recv_title">AutoAlert · Récepteur</string>
@@ -118,4 +118,10 @@
     <string name="details_title">Détails de la voiture</string>
     <string name="recv_btn_on">🔒 Écoute active</string>
     <string name="recv_btn_off">🔓 Écoute arrêtée</string>
+    <string name="role_subtitle">Touche l’option qui correspond à ce téléphone. Il faut installer l’application sur 2 téléphones : un dans la voiture, l’autre avec toi.</string>
+    <string name="role_car_short">dans la voiture</string>
+    <string name="role_receiver_short">mon téléphone (récepteur)</string>
+    <string name="role_confirm_title">Confirmer ton choix</string>
+    <string name="dialog_ok">Compris</string>
+    <string name="dialog_cancel">Annuler</string>
 </resources>

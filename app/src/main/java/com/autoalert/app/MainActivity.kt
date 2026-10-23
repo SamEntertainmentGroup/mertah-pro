@@ -453,14 +453,14 @@ class MainActivity : Activity() {
             return
         }
         val img = ImageView(this).apply {
-            setImageBitmap(Pairing.qrBitmap("autoalert:$code"))
-            setPadding(dp(20), dp(20), dp(20), dp(20))
+            // Taille fixe en dp : s'adapte à tous les écrans
+            setImageBitmap(Pairing.qrBitmap("autoalert:$code", dp(260)))
         }
-        android.app.AlertDialog.Builder(this)
-            .setTitle(R.string.qr_title)
-            .setView(img)
-            .setPositiveButton(android.R.string.ok, null)
-            .show()
+        AppDialog.show(
+            this,
+            title = getString(R.string.qr_title),
+            content = img
+        )
     }
 
     override fun onPause() {

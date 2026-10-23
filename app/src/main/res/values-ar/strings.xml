@@ -60,11 +60,11 @@
     <string name="section_code">رمز السيارة (امسح QR أو اكتبه)</string>
     <string name="code_hint">8 أحرف على الأقل (حروف وأرقام)</string>
     <string name="msg_invalid_code">رمز غير صالح: من 8 إلى 32 حرفًا أو رقمًا</string>
-    <string name="role_title">ماذا سيفعل هذا الهاتف؟</string>
-    <string name="role_car">🚗 في السيارة</string>
-    <string name="role_car_desc">يراقب الحركة ويرسل الإنذار</string>
-    <string name="role_receiver">📱 هاتفي</string>
-    <string name="role_receiver_desc">يستقبل الإنذار والموقع</string>
+    <string name="role_title">ما دور هذا الهاتف؟</string>
+    <string name="role_car">يبقى داخل السيارة</string>
+    <string name="role_car_desc">يرصد أي حركة للسيارة ثم يرسل الإنذار وموقعها عبر الإنترنت. اتركه موصولاً بالشاحن ومخفيًا في السيارة.</string>
+    <string name="role_receiver">هذا هاتفي</string>
+    <string name="role_receiver_desc">يرنّ عندما تتحرك السيارة ويعرض موقعها على خريطة. احتفظ به معك دائمًا.</string>
     <string name="btn_change_role">🔄 تغيير الوضع</string>
     <string name="role_confirm">تغيير الوضع سيوقف الحماية. المتابعة؟</string>
     <string name="recv_title">AutoAlert · الاستقبال</string>
@@ -118,4 +118,10 @@
     <string name="details_title">تفاصيل السيارة</string>
     <string name="recv_btn_on">🔒 الاستماع نشط</string>
     <string name="recv_btn_off">🔓 الاستماع متوقف</string>
+    <string name="role_subtitle">المس الخيار المناسب لهذا الهاتف. يجب تثبيت التطبيق على هاتفين: واحد في السيارة والآخر معك.</string>
+    <string name="role_car_short">داخل السيارة</string>
+    <string name="role_receiver_short">هاتفي (جهاز الاستقبال)</string>
+    <string name="role_confirm_title">أكّد اختيارك</string>
+    <string name="dialog_ok">فهمت</string>
+    <string name="dialog_cancel">إلغاء</string>
 </resources>
