@@ -27,6 +27,7 @@ object AppDialog {
         message: String? = null,
         content: View? = null,
         cancel: Boolean = false,
+        onCancel: (() -> Unit)? = null,
         onConfirm: (() -> Unit)? = null
     ) {
         fun dp(v: Int) = (v * a.resources.displayMetrics.density).roundToInt()
@@ -89,7 +90,10 @@ object AppDialog {
                         setStroke(dp(1), Color.rgb(220, 223, 229))
                     }
                     stateListAnimator = null
-                    setOnClickListener { d.dismiss() }
+                    setOnClickListener {
+                        d.dismiss()
+                        onCancel?.invoke()
+                    }
                 },
                 LinearLayout.LayoutParams(0, dp(58), 1f).apply { marginEnd = dp(12) }
             )
@@ -115,6 +119,9 @@ object AppDialog {
             LinearLayout.LayoutParams(0, dp(58), 1f)
         )
         box.addView(row)
+
+        // Retour arrière ou toucher à l'extérieur = annulation
+        d.setOnCancelListener { onCancel?.invoke() }
 
         d.setContentView(box)
         d.show()
