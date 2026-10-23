@@ -2,6 +2,7 @@ package com.autoalert.app
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.NotificationManager
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -21,19 +22,20 @@ import android.view.Gravity
 import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import android.widget.Button
 import android.widget.EditText
-import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import java.text.DateFormat
 import java.util.Date
 import kotlin.math.roundToInt
 
 class ReceiverActivity : Activity() {
+
+    private enum class Link { STOPPED, WAIT, SERVER, NONE, CAR_OFF, OK, OLD }
 
     private lateinit var codeInput: EditText
     private lateinit var toggleBtn: Button
@@ -41,11 +43,6 @@ class ReceiverActivity : Activity() {
     private lateinit var notifBtn: Button
     private lateinit var batBtn: Button
     private lateinit var linkText: TextView
-    private lateinit var infoAlert: TextView
-    private lateinit var infoPos: TextView
-    private lateinit var infoAlive: TextView
-    private lateinit var mapBtn: Button
-    private lateinit var askBtn: Button
     private lateinit var web: WebView
     private var mapReady = false
     private var shownTs = -1L
@@ -92,7 +89,7 @@ class ReceiverActivity : Activity() {
         batBtn = addRow(configCard, getString(R.string.perm_battery)) { askBattery() }
         root.addView(configCard)
 
-        // CODE
+        // CODE DE LA VOITURE
         root.addView(sectionTitle(getString(R.string.section_code)))
         val codeCard = card()
         codeInput = EditText(this).apply {
@@ -108,29 +105,22 @@ class ReceiverActivity : Activity() {
         }
         codeCard.addView(codeInput)
         codeCard.addView(
-            Button(this).apply {
-                text = getString(R.string.scan_btn)
-                isAllCaps = false
-                textSize = 14f
-                setTextColor(NOIR)
-                background = rounded(Color.WHITE, NOIR, 12)
-                stateListAnimator = null
-                setOnClickListener { scanCode() }
-            },
-            LinearLayout.LayoutParams(-1, dp(46)).apply { topMargin = dp(10) }
+            grayButton(getString(R.string.scan_btn)) { scanCode() },
+            LinearLayout.LayoutParams(-1, dp(52)).apply { topMargin = dp(10) }
         )
         root.addView(codeCard)
 
-        // ÉTAT DE LA VOITURE
+        // VOITURE : état, carte, boutons
         root.addView(sectionTitle(getString(R.string.recv_section_car)))
-        val infoCard = card()
-        linkText = infoLine().apply {
+        val carCard = card()
+        linkText = TextView(this).apply {
             textSize = 16f
             setTypeface(null, Typeface.BOLD)
+            setTextColor(NOIR)
+            setPadding(dp(2), 0, 0, dp(8))
         }
-        infoCard.addView(linkText)
+        carCard.addView(linkText)
 
-        // Petite carte : position de la voiture et trajet
         web = WebView(this).apply {
             settings.javaScriptEnabled = true
             setOnTouchListener { v, _ ->
@@ -145,55 +135,27 @@ class ReceiverActivity : Activity() {
             }
             loadDataWithBaseURL(Config.SERVER + "/", MAP_HTML, "text/html", "UTF-8", null)
         }
-        infoCard.addView(web, LinearLayout.LayoutParams(-1, dp(240)).apply {
-            topMargin = dp(8)
-            bottomMargin = dp(8)
-        })
-        infoAlert = infoLine()
-        infoPos = infoLine()
-        infoAlive = infoLine()
-        infoCard.addView(infoAlert)
-        infoCard.addView(infoPos)
-        infoCard.addView(infoAlive)
-        askBtn = Button(this).apply {
-            text = getString(R.string.ask_btn)
-            isAllCaps = false
-            textSize = 15f
-            setTextColor(NOIR)
-            background = rounded(Color.WHITE, NOIR, 12)
-            stateListAnimator = null
-            setOnClickListener { askCar() }
-        }
-        infoCard.addView(askBtn, LinearLayout.LayoutParams(-1, dp(48)).apply { topMargin = dp(10) })
-        mapBtn = Button(this).apply {
-            text = getString(R.string.btn_open_map)
-            isAllCaps = false
-            textSize = 15f
-            setTextColor(Color.WHITE)
-            background = rounded(Color.rgb(25, 145, 80), Color.TRANSPARENT, 12)
-            stateListAnimator = null
-            setOnClickListener { openMap() }
-        }
-        infoCard.addView(mapBtn, LinearLayout.LayoutParams(-1, dp(48)).apply { topMargin = dp(10) })
-        root.addView(infoCard)
+        carCard.addView(web, LinearLayout.LayoutParams(-1, dp(240)))
 
-        // GRAND BOUTON ROND
+        carCard.addView(
+            grayButton(getString(R.string.ask_btn)) { askCar() },
+            LinearLayout.LayoutParams(-1, dp(52)).apply { topMargin = dp(12) }
+        )
+        carCard.addView(
+            grayButton(getString(R.string.details_btn)) { showDetails() },
+            LinearLayout.LayoutParams(-1, dp(52)).apply { topMargin = dp(10) }
+        )
+        root.addView(carCard)
+
+        // BOUTON D'ACTIVATION RECTANGULAIRE
         toggleBtn = Button(this).apply {
             isAllCaps = false
-            textSize = 80f
-            setPadding(0, 0, 0, 0)
-            minWidth = 0
-            minHeight = 0
-            minimumWidth = 0
-            minimumHeight = 0
+            textSize = 20f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.WHITE)
             stateListAnimator = null
         }
-        // Le bouton rond s'adapte à la largeur du téléphone
-        val toggleSize = minOf(dp(250), (resources.displayMetrics.widthPixels * 0.7f).toInt())
-        toggleBtn.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, toggleSize * 0.3f)
-        val toggleBox = FrameLayout(this).apply { setPadding(0, dp(30), 0, dp(20)) }
-        toggleBox.addView(toggleBtn, FrameLayout.LayoutParams(toggleSize, toggleSize, Gravity.CENTER_HORIZONTAL))
-        root.addView(toggleBox)
+        root.addView(toggleBtn, LinearLayout.LayoutParams(-1, dp(68)).apply { topMargin = dp(16) })
 
         // PLUS
         root.addView(
@@ -237,6 +199,7 @@ class ReceiverActivity : Activity() {
                 .putString("code", code)
                 .putLong("r_since", -1L)
                 .putLong("r_poll_ms", 0L)
+                .putLong("r_start_ms", System.currentTimeMillis())
                 .putBoolean("r_lost", false)
                 .putBoolean("r_off", false)
                 .putBoolean("r_active", true)
@@ -268,6 +231,12 @@ class ReceiverActivity : Activity() {
         super.onPause()
     }
 
+    override fun onDestroy() {
+        handler.removeCallbacks(ticker)
+        if (::web.isInitialized) web.destroy()
+        super.onDestroy()
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -283,39 +252,69 @@ class ReceiverActivity : Activity() {
         }
     }
 
-    // INFOS SUR LA VOITURE
-    private fun refreshInfo() {
+    // ÉTAT DE LA LIAISON AVEC LA VOITURE
+    private fun linkState(): Pair<Link, Int> {
         val p = getSharedPreferences("p", MODE_PRIVATE)
-        val fmt = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
-        fun t(ts: Long) = if (ts > 0) fmt.format(Date(ts * 1000)) else getString(R.string.info_none)
+        if (!p.getBoolean("r_active", false)) return Link.STOPPED to 0
 
-        val lat = p.getString("r_lat", null)
-        val lng = p.getString("r_lng", null)
-        val bat = if (p.contains("r_battery")) "  ·  🔋 ${p.getInt("r_battery", 0)}%" else ""
-
-        infoAlert.text = "🚨 ${getString(R.string.info_alert)} : ${t(p.getLong("r_alert_ts", 0))}"
-        infoPos.text = "📍 ${getString(R.string.info_pos)} : ${t(p.getLong("r_pos_ts", 0))}"
-        infoAlive.text = "💚 ${getString(R.string.info_alive)} : ${t(p.getLong("r_alive_ts", 0))}$bat"
-
-        // Indicateur de liaison avec la voiture
         val now = System.currentTimeMillis()
         val pollMs = p.getLong("r_poll_ms", 0L)
-        val age = p.getLong("r_alive_age", -1L)
-        linkText.text = when {
-            !p.getBoolean("r_active", false) -> getString(R.string.link_off)
-            pollMs == 0L || now - pollMs > 60_000L -> getString(R.string.link_server)
-            age < 0 -> getString(R.string.link_none)
-            p.getBoolean("r_off", false) -> getString(R.string.link_car_off)
-            else -> {
-                val min = ((age + (now - pollMs) / 1000) / 60).toInt().coerceAtLeast(1)
-                if (min <= 12) getString(R.string.link_ok, min) else getString(R.string.link_old, min)
-            }
+        if (pollMs == 0L) {
+            val start = p.getLong("r_start_ms", now)
+            return (if (now - start > 30_000L) Link.SERVER else Link.WAIT) to 0
         }
+        if (now - pollMs > 60_000L) return Link.SERVER to 0
 
-        mapBtn.alpha = if (lat != null && lng != null) 1f else 0.45f
+        val age = p.getLong("r_alive_age", -1L)
+        if (age < 0) return Link.NONE to 0
+        if (p.getBoolean("r_off", false)) return Link.CAR_OFF to 0
+
+        val min = ((age + (now - pollMs) / 1000) / 60).toInt().coerceAtLeast(1)
+        return (if (min <= 3) Link.OK else Link.OLD) to min
+    }
+
+    private fun refreshInfo() {
+        val (state, min) = linkState()
+        linkText.text = when (state) {
+            Link.STOPPED -> getString(R.string.link_off)
+            Link.WAIT -> getString(R.string.car_link_wait)
+            Link.SERVER -> getString(R.string.link_server)
+            Link.NONE -> getString(R.string.link_none)
+            Link.CAR_OFF -> getString(R.string.link_car_off)
+            Link.OK -> getString(R.string.link_ok, min)
+            Link.OLD -> getString(R.string.link_old, min)
+        }
+        paintToggle(state == Link.OK)
         updateMap()
     }
 
+    // Détails dans une fenêtre séparée
+    private fun showDetails() {
+        val p = getSharedPreferences("p", MODE_PRIVATE)
+        val fmt = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
+        fun t(ms: Long) = if (ms > 0) fmt.format(Date(ms)) else getString(R.string.info_none)
+
+        val pollMs = p.getLong("r_poll_ms", 0L)
+        val age = p.getLong("r_alive_age", -1L)
+        val aliveMs = if (age >= 0 && pollMs > 0) pollMs - age * 1000 else 0L
+
+        val sb = StringBuilder()
+        sb.append("🚨 ${getString(R.string.info_alert)} :\n${t(p.getLong("r_alert_ts", 0) * 1000)}\n\n")
+        sb.append("📍 ${getString(R.string.info_pos)} :\n${t(p.getLong("r_pos_ts", 0) * 1000)}")
+        val lat = p.getString("r_lat", null)?.toDoubleOrNull()
+        val lng = p.getString("r_lng", null)?.toDoubleOrNull()
+        if (lat != null && lng != null) sb.append("\n" + String.format("%.5f, %.5f", lat, lng))
+        sb.append("\n\n💚 ${getString(R.string.info_alive)} :\n${t(aliveMs)}")
+        if (p.contains("r_battery")) sb.append("\n\n🔋 ${p.getInt("r_battery", 0)}%")
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.details_title)
+            .setMessage(sb.toString())
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
+    }
+
+    // CARTE
     private fun updateMap(force: Boolean = false) {
         if (!mapReady) return
         val p = getSharedPreferences("p", MODE_PRIVATE)
@@ -356,12 +355,6 @@ class ReceiverActivity : Activity() {
         }
     }
 
-    override fun onDestroy() {
-        handler.removeCallbacks(ticker)
-        if (::web.isInitialized) web.destroy()
-        super.onDestroy()
-    }
-
     // Demande à la voiture d'envoyer sa position maintenant
     private fun askCar() {
         val p = getSharedPreferences("p", MODE_PRIVATE)
@@ -371,28 +364,12 @@ class ReceiverActivity : Activity() {
         }
         val code = p.getString("code", "") ?: ""
         Toast.makeText(this, R.string.ask_sent, Toast.LENGTH_LONG).show()
+
+        // La carte se recentre sur la voiture, même si elle a été déplacée
+        if (mapReady) web.evaluateJavascript("recenter()", null)
+
         Api.postAsync("ask", org.json.JSONObject().put("code", code)) { ok ->
             if (!ok) runOnUiThread { Toast.makeText(this, R.string.ask_fail, Toast.LENGTH_LONG).show() }
-        }
-    }
-
-    private fun openMap() {
-        val p = getSharedPreferences("p", MODE_PRIVATE)
-        val lat = p.getString("r_lat", null)
-        val lng = p.getString("r_lng", null)
-        if (lat == null || lng == null) {
-            Toast.makeText(this, R.string.msg_no_pos, Toast.LENGTH_SHORT).show()
-            return
-        }
-        try {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("geo:$lat,$lng?q=$lat,$lng(Voiture)")))
-        } catch (_: Exception) {
-            try {
-                startActivity(
-                    Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps?q=$lat,$lng"))
-                )
-            } catch (_: Exception) {
-            }
         }
     }
 
@@ -425,17 +402,18 @@ class ReceiverActivity : Activity() {
         }
     }
 
-    // ÉTAT : bouton rond vert ou rouge
+    // BOUTON D'ACTIVATION : vert seulement si la voiture est réellement jointe
     private fun updateStatus(active: Boolean) {
         codeInput.isEnabled = !active
         codeInput.alpha = if (active) 0.5f else 1f
-        toggleBtn.text = if (active) "🔒" else "🔓"
-        toggleBtn.setTextColor(Color.WHITE)
-        toggleBtn.contentDescription =
-            getString(if (active) R.string.status_active else R.string.status_inactive)
+        toggleBtn.text = getString(if (active) R.string.recv_btn_on else R.string.recv_btn_off)
+        refreshInfo()
+    }
+
+    private fun paintToggle(connected: Boolean) {
         toggleBtn.background = GradientDrawable().apply {
-            shape = GradientDrawable.OVAL
-            setColor(if (active) Color.rgb(8, 120, 61) else Color.rgb(197, 22, 37))
+            setColor(if (connected) Color.rgb(8, 120, 61) else Color.rgb(197, 22, 37))
+            cornerRadius = dp(16).toFloat()
         }
     }
 
@@ -475,10 +453,15 @@ class ReceiverActivity : Activity() {
         )
     }
 
-    private fun infoLine() = TextView(this).apply {
-        textSize = 15f
+    // Même style gris que les boutons de la page Plus
+    private fun grayButton(label: String, onClick: () -> Unit) = Button(this).apply {
+        text = label
+        isAllCaps = false
+        textSize = 16f
         setTextColor(NOIR)
-        setPadding(0, dp(4), 0, dp(4))
+        background = rounded(Color.rgb(235, 236, 239), Color.rgb(220, 223, 229), 12)
+        stateListAnimator = null
+        setOnClickListener { onClick() }
     }
 
     private fun card(): LinearLayout = LinearLayout(this).apply {
@@ -508,7 +491,6 @@ class ReceiverActivity : Activity() {
     private fun dp(v: Int) = (v * resources.displayMetrics.density).roundToInt()
 }
 
-
 private const val MAP_HTML = """<!DOCTYPE html><html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -518,8 +500,9 @@ private const val MAP_HTML = """<!DOCTYPE html><html><head>
 <script>
 var map=L.map('m').setView([28.0,2.5],5);
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'OpenStreetMap'}).addTo(map);
-var mk=null,ci=null,first=true;
+var mk=null,ci=null,first=true,follow=true;
 var tr=L.polyline([],{color:'#c51625',weight:4}).addTo(map);
+map.on('dragstart',function(){follow=false;});
 function setCar(lat,lng,acc,pts){
   var p=[lat,lng];
   if(!mk){
@@ -529,6 +512,11 @@ function setCar(lat,lng,acc,pts){
     mk.setLatLng(p);ci.setLatLng(p);ci.setRadius(acc||0);
   }
   tr.setLatLngs(pts);
-  if(first){map.setView(p,16);first=false;}else{map.panTo(p);}
+  if(first){map.setView(p,16);first=false;}
+  else if(follow){map.panTo(p);}
+}
+function recenter(){
+  follow=true;
+  if(mk){map.setView(mk.getLatLng(),Math.max(map.getZoom(),16));}
 }
 </script></body></html>"""

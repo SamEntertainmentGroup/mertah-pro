@@ -57,7 +57,7 @@
     <string name="notif_text">Monitoring movement</string>
 
     <string name="perm_location">Location permission</string>
-    <string name="section_code">Secret code (same on both phones)</string>
+    <string name="section_code">Car code (scan the QR or type it)</string>
     <string name="code_hint">At least 8 characters (letters and digits)</string>
     <string name="msg_invalid_code">Invalid code: 8 to 32 letters or digits</string>
     <string name="role_title">What does this phone do?</string>
@@ -82,7 +82,7 @@
     <string name="msg_no_pos">No position yet</string>
     <string name="ch_recv">AutoAlert receiver</string>
     <string name="ch_alert">Car alarms</string>
-    <string name="car_link_ok">✅ Connected to the server · %1$s</string>
+    <string name="car_link_ok">🟢 Connected to the server · %1$s</string>
     <string name="car_link_fail">⚠ Server unreachable (check internet)</string>
     <string name="car_link_wait">⏳ Connecting to the server…</string>
     <string name="link_ok">🟢 Car connected · seen %1$d min ago</string>
@@ -111,4 +111,11 @@
     <string name="ch_boot">Car restart</string>
     <string name="boot_title">🔓 Protection stopped after restart</string>
     <string name="boot_text">Tap to turn the protection back on</string>
+    <string name="section_code_car">Code of this phone (to scan on your phone)</string>
+    <string name="role_note">Permanent choice: to change the mode, you will have to reinstall the app.</string>
+    <string name="role_confirm_choice">This phone will be: %1$s\n\nTo change later, you will have to reinstall the app.</string>
+    <string name="details_btn">ℹ️ Car details</string>
+    <string name="details_title">Car details</string>
+    <string name="recv_btn_on">🔒 Listening</string>
+    <string name="recv_btn_off">🔓 Listening stopped</string>
 </resources>

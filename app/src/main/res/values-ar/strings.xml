@@ -57,7 +57,7 @@
     <string name="notif_text">جارٍ رصد الحركة</string>
 
     <string name="perm_location">إذن تحديد الموقع</string>
-    <string name="section_code">الرمز السري (نفسه على الهاتفين)</string>
+    <string name="section_code">رمز السيارة (امسح QR أو اكتبه)</string>
     <string name="code_hint">8 أحرف على الأقل (حروف وأرقام)</string>
     <string name="msg_invalid_code">رمز غير صالح: من 8 إلى 32 حرفًا أو رقمًا</string>
     <string name="role_title">ماذا سيفعل هذا الهاتف؟</string>
@@ -82,7 +82,7 @@
     <string name="msg_no_pos">لا يوجد موقع بعد</string>
     <string name="ch_recv">استقبال AutoAlert</string>
     <string name="ch_alert">إنذارات السيارة</string>
-    <string name="car_link_ok">✅ متصل بالخادم · %1$s</string>
+    <string name="car_link_ok">🟢 متصل بالخادم · %1$s</string>
     <string name="car_link_fail">⚠ الخادم غير متاح (تحقق من الإنترنت)</string>
     <string name="car_link_wait">⏳ جارٍ الاتصال بالخادم…</string>
     <string name="link_ok">🟢 السيارة متصلة · منذ %1$d دقيقة</string>
@@ -111,4 +111,11 @@
     <string name="ch_boot">إعادة تشغيل السيارة</string>
     <string name="boot_title">🔓 توقفت الحماية بعد إعادة التشغيل</string>
     <string name="boot_text">المس لإعادة تفعيل الحماية</string>
+    <string name="section_code_car">رمز هذا الهاتف (للمسح على هاتفك)</string>
+    <string name="role_note">اختيار نهائي: لتغيير الوضع يجب إعادة تثبيت التطبيق.</string>
+    <string name="role_confirm_choice">سيكون هذا الهاتف: %1$s\n\nللتغيير لاحقًا يجب إعادة تثبيت التطبيق.</string>
+    <string name="details_btn">ℹ️ تفاصيل السيارة</string>
+    <string name="details_title">تفاصيل السيارة</string>
+    <string name="recv_btn_on">🔒 الاستماع نشط</string>
+    <string name="recv_btn_off">🔓 الاستماع متوقف</string>
 </resources>

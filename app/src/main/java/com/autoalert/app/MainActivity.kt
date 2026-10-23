@@ -29,7 +29,6 @@ class MainActivity : Activity() {
     private lateinit var banner: TextView
     private lateinit var phoneInput: EditText
     private lateinit var linkText: TextView
-    private lateinit var genBtn: Button
     private lateinit var sensitivityBar: SeekBar
     private val sensitivityLabels = mutableListOf<TextView>()
     private lateinit var toggleBtn: Button
@@ -67,6 +66,11 @@ class MainActivity : Activity() {
                 finish()
                 return
             }
+        }
+
+        // Code de liaison propre à ce téléphone, créé une seule fois
+        if ((prefs.getString("code", "") ?: "").isEmpty()) {
+            prefs.edit().putString("code", Pairing.newCode()).apply()
         }
 
         root = LinearLayout(this).apply {
@@ -132,7 +136,7 @@ class MainActivity : Activity() {
         root.addView(configCard)
 
         // NUMÉRO
-        root.addView(createSectionTitle(getString(R.string.section_code)))
+        root.addView(createSectionTitle(getString(R.string.section_code_car)))
 
         val phoneCard = createCard()
 
@@ -145,6 +149,8 @@ class MainActivity : Activity() {
             filters = arrayOf(InputFilter.LengthFilter(32))
             setPadding(dp(14), dp(12), dp(14), dp(12))
             setText(prefs.getString("code", ""))
+            keyListener = null
+            isCursorVisible = false
             background = roundedBackground(
                 Color.WHITE,
                 Color.rgb(220, 223, 229),
@@ -154,31 +160,26 @@ class MainActivity : Activity() {
 
         phoneCard.addView(phoneInput)
 
-        // Générer un code / afficher le QR pour le récepteur
-        val pairRow = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            setPadding(0, dp(10), 0, 0)
-        }
-        fun pairButton(label: String, onClick: () -> Unit) = Button(this).apply {
-            text = label
-            isAllCaps = false
-            textSize = 13f
-            setTextColor(Color.rgb(35, 38, 45))
-            background = GradientDrawable().apply {
-                setColor(Color.WHITE)
-                cornerRadius = dp(12).toFloat()
-                setStroke(dp(1), Color.rgb(35, 38, 45))
-            }
-            stateListAnimator = null
-            setOnClickListener { onClick() }
-        }
-        genBtn = pairButton(getString(R.string.gen_btn)) {
-            phoneInput.setText(Pairing.newCode())
-        }
-        val qrBtn = pairButton(getString(R.string.qr_btn)) { showQr() }
-        pairRow.addView(genBtn, LinearLayout.LayoutParams(0, dp(46), 1f).apply { marginEnd = dp(6) })
-        pairRow.addView(qrBtn, LinearLayout.LayoutParams(0, dp(46), 1f))
-        phoneCard.addView(pairRow)
+        // Afficher le QR : même style gris que la page Plus
+        phoneCard.addView(
+            Button(this).apply {
+                text = getString(R.string.qr_btn)
+                isAllCaps = false
+                textSize = 16f
+                setTextColor(Color.rgb(35, 38, 45))
+                background = roundedBackground(
+                    Color.rgb(235, 236, 239),
+                    Color.rgb(220, 223, 229),
+                    12
+                )
+                stateListAnimator = null
+                setOnClickListener { showQr() }
+            },
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dp(52)
+            ).apply { topMargin = dp(10) }
+        )
 
         linkText = TextView(this).apply {
             textSize = 14f
@@ -483,7 +484,7 @@ class MainActivity : Activity() {
             return
         }
         val ok = p.getLong("c_ok_ms", 0L)
-        val fresh = ok > 0 && System.currentTimeMillis() - ok < 12 * 60_000L
+        val fresh = ok > 0 && System.currentTimeMillis() - ok < 90_000L
         linkText.text = when {
             fresh -> getString(
                 R.string.car_link_ok,
@@ -492,6 +493,7 @@ class MainActivity : Activity() {
             p.getBoolean("c_fail", false) || ok > 0 -> getString(R.string.car_link_fail)
             else -> getString(R.string.car_link_wait)
         }
+        paintToggle(true)
     }
 
     override fun onDestroy() {
@@ -800,12 +802,6 @@ class MainActivity : Activity() {
         active: Boolean
     ) {
 
-        val color = if (active) {
-            Color.rgb(8, 120, 61)    // Vert foncé
-        } else {
-            Color.rgb(197, 22, 37)   // Rouge foncé
-        }
-
         toggleBtn.text = if (active) "🔒" else "🔓"
         toggleBtn.setTextColor(Color.WHITE)
 
@@ -816,10 +812,7 @@ class MainActivity : Activity() {
                 getString(R.string.status_inactive)
             }
 
-        toggleBtn.background = GradientDrawable().apply {
-            shape = GradientDrawable.OVAL
-            setColor(color)
-        }
+        paintToggle(active)
 
         // Sensibilité grisée et verrouillée tant que la protection est active
         val barTint = android.content.res.ColorStateList.valueOf(
@@ -830,10 +823,24 @@ class MainActivity : Activity() {
         sensitivityBar.setOnTouchListener { _, _ -> active }
 
         // Code verrouillé tant que la protection est active
-        phoneInput.isEnabled = !active
-        phoneInput.alpha = if (active) 0.5f else 1f
-        genBtn.isEnabled = !active
         refreshLink()
+    }
+
+    // Vert seulement si la protection est active ET le serveur réellement joint
+    private fun carLinked(): Boolean {
+        val p = getSharedPreferences("p", MODE_PRIVATE)
+        val ok = p.getLong("c_ok_ms", 0L)
+        return p.getBoolean("active", false) && ok > 0 && System.currentTimeMillis() - ok < 90_000L
+    }
+
+    private fun paintToggle(active: Boolean) {
+        toggleBtn.background = GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(
+                if (active && carLinked()) Color.rgb(8, 120, 61)   // Vert foncé
+                else Color.rgb(197, 22, 37)                         // Rouge foncé
+            )
+        }
     }
 
     // Cadenas sur Sensible et Extrême tant qu'aucun code valide n'est saisi

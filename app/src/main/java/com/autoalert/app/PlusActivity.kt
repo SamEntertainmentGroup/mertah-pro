@@ -1,7 +1,6 @@
 package com.autoalert.app
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
@@ -49,43 +48,29 @@ class PlusActivity : Activity() {
         })
         root.addView(howCard)
 
-        // DÉBLOQUER LA SENSIBILITÉ
-        root.addView(
-            accentButton(getString(R.string.btn_unlock)) {
-                startActivity(Intent(this@PlusActivity, UnlockActivity::class.java))
-            },
-            LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                dp(56)
-            ).apply { topMargin = dp(20) }
-        )
+        // Espacement identique entre tous les boutons
+        val gap = dp(16)
+        fun buttonParams() = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            dp(56)
+        ).apply { topMargin = gap }
+
+        // DÉBLOQUER LA SENSIBILITÉ (téléphone de la voiture seulement)
+        val isCar = getSharedPreferences("p", MODE_PRIVATE).getString("role", "car") == "car"
+        if (isCar) {
+            root.addView(
+                accentButton(getString(R.string.btn_unlock)) {
+                    startActivity(Intent(this@PlusActivity, UnlockActivity::class.java))
+                },
+                buttonParams()
+            )
+        }
 
         // PARTAGER
-        root.addView(
-            grayButton(getString(R.string.btn_share)) { share() },
-            LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                dp(56)
-            ).apply { topMargin = dp(24) }
-        )
+        root.addView(grayButton(getString(R.string.btn_share)) { share() }, buttonParams())
 
         // CONTACT (Messenger)
-        root.addView(
-            grayButton(getString(R.string.btn_contact)) { openMessenger() },
-            LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                dp(56)
-            ).apply { topMargin = dp(12) }
-        )
-
-        // CHANGER DE MODE
-        root.addView(
-            grayButton(getString(R.string.btn_change_role)) { changeRole() },
-            LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                dp(56)
-            ).apply { topMargin = dp(24) }
-        )
+        root.addView(grayButton(getString(R.string.btn_contact)) { openMessenger() }, buttonParams())
 
         // ESPACE LIBRE : pousse le bouton Retour en bas de l'écran
         root.addView(
@@ -110,26 +95,6 @@ class PlusActivity : Activity() {
     }
 
     // ACTIONS
-    private fun changeRole() {
-        AlertDialog.Builder(this)
-            .setMessage(R.string.role_confirm)
-            .setPositiveButton(android.R.string.yes) { _, _ ->
-                stopService(Intent(this, MotionService::class.java))
-                stopService(Intent(this, ReceiverService::class.java))
-                getSharedPreferences("p", MODE_PRIVATE).edit()
-                    .remove("role")
-                    .putBoolean("active", false)
-                    .putBoolean("r_active", false)
-                    .apply()
-                startActivity(
-                    Intent(this, RoleActivity::class.java)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                )
-            }
-            .setNegativeButton(android.R.string.no, null)
-            .show()
-    }
-
     private fun share() {
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
