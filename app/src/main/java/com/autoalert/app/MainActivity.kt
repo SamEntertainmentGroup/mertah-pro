@@ -802,8 +802,17 @@ class MainActivity : Activity() {
         active: Boolean
     ) {
 
-        toggleBtn.text = if (active) "🔒" else "🔓"
-        toggleBtn.setTextColor(Color.WHITE)
+        // Cadenas dessiné (même style que l'écran « Mon téléphone »), centré sur 45 % du rond
+        toggleBtn.text = ""
+        toggleBtn.foreground = android.graphics.drawable.InsetDrawable(
+            Icons.drawable(
+                this,
+                if (active) Icons.Kind.LOCK_CLOSED else Icons.Kind.LOCK_OPEN,
+                Color.WHITE,
+                24
+            ),
+            0.275f
+        )
 
         toggleBtn.contentDescription =
             if (active) {
@@ -849,8 +858,15 @@ class MainActivity : Activity() {
 
         choiceNames.forEachIndexed { index, nameRes ->
             val locked = index > 0 && !unlocked
-            sensitivityLabels.getOrNull(index)?.text =
-                if (locked) "🔒 " + getString(nameRes) else getString(nameRes)
+            sensitivityLabels.getOrNull(index)?.let { label ->
+                label.text = getString(nameRes)
+                // Petit cadenas dessiné devant le nom tant que le niveau est verrouillé
+                label.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    if (locked) Icons.drawable(this, Icons.Kind.LOCK_CLOSED, Color.rgb(90, 95, 105), 14) else null,
+                    null, null, null
+                )
+                label.compoundDrawablePadding = dp(4)
+            }
         }
 
         if (!unlocked && sensitivityBar.progress != 0) {
