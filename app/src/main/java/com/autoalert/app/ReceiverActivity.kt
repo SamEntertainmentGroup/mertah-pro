@@ -125,7 +125,7 @@ class ReceiverActivity : Activity() {
         batBtn = addRow(configCard, getString(R.string.perm_battery)) { askBattery() }
         root.addView(configCard)
 
-        // CODE DE LA VOITURE (caché pendant l'écoute)
+        // CODE DE LA VOITURE (toujours visible, verrouillé pendant l'écoute)
         codeTitle = sectionTitle(getString(R.string.section_code))
         root.addView(codeTitle)
         codeCard = card()
@@ -155,7 +155,6 @@ class ReceiverActivity : Activity() {
             setTextColor(Color.WHITE)
             stateListAnimator = null
         }
-        root.addView(toggleBtn, LinearLayout.LayoutParams(-1, dp(68)).apply { topMargin = dp(8) })
 
         // CARTE VOITURE : état, carte, boutons, infos
         val carCard = card().apply {
@@ -236,7 +235,7 @@ class ReceiverActivity : Activity() {
                 setMargins(0, 0, dp(12), dp(12))
             }
         )
-        carCard.addView(mapBox, LinearLayout.LayoutParams(-1, dp(320)))
+        carCard.addView(mapBox, LinearLayout.LayoutParams(-1, dp(240)))
 
         // Boutons côte à côte : Interroger / Itinéraire
         val btnRow = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
@@ -264,6 +263,9 @@ class ReceiverActivity : Activity() {
             LinearLayout.LayoutParams(-1, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) }
         )
         root.addView(carCard)
+
+        // GRAND BOUTON D'ACTIVATION sous la carte
+        root.addView(toggleBtn, LinearLayout.LayoutParams(-1, dp(68)).apply { topMargin = dp(8) })
 
         // PLUS
         root.addView(
@@ -555,9 +557,6 @@ class ReceiverActivity : Activity() {
     private fun updateStatus(active: Boolean) {
         codeInput.isEnabled = !active
         codeInput.alpha = if (active) 0.5f else 1f
-        val vis = if (active) View.GONE else View.VISIBLE
-        codeTitle.visibility = vis
-        codeCard.visibility = vis
         toggleBtn.text = getString(if (active) R.string.recv_btn_on else R.string.recv_btn_off)
         refreshInfo()
     }
