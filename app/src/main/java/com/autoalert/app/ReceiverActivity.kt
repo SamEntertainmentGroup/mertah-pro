@@ -19,10 +19,13 @@ import android.text.InputFilter
 import android.text.InputType
 import android.view.Gravity
 import android.view.View
+import android.view.ViewOutlineProvider
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -37,11 +40,20 @@ class ReceiverActivity : Activity() {
     private enum class Link { STOPPED, WAIT, SERVER, NONE, CAR_OFF, OK, OLD }
 
     private lateinit var codeInput: EditText
+    private lateinit var codeTitle: TextView
+    private lateinit var codeCard: LinearLayout
     private lateinit var toggleBtn: Button
     private lateinit var configCard: LinearLayout
     private lateinit var notifBtn: Button
     private lateinit var batBtn: Button
+    private lateinit var stopBar: LinearLayout
+    private lateinit var dot: View
     private lateinit var linkText: TextView
+    private lateinit var batBox: LinearLayout
+    private lateinit var batIcon: ImageView
+    private lateinit var batText: TextView
+    private lateinit var alertLine: TextView
+    private lateinit var posLine: TextView
     private lateinit var web: WebView
     private var mapReady = false
     private var shownTs = -1L
@@ -51,11 +63,12 @@ class ReceiverActivity : Activity() {
     private val ticker = object : Runnable {
         override fun run() {
             refreshInfo()
-            handler.postDelayed(this, 3000)
+            handler.postDelayed(this, 2000)
         }
     }
 
     private val NOIR = Color.rgb(35, 38, 45)
+    private val GRIS_TEXTE = Color.rgb(90, 95, 105)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +83,27 @@ class ReceiverActivity : Activity() {
             isFillViewport = true
             addView(root)
         }
+
+        // BANDEAU « ARRÊTER L'ALARME » (visible seulement quand ça sonne)
+        stopBar = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            background = rounded(Color.rgb(197, 22, 37), Color.TRANSPARENT, 16)
+            visibility = View.GONE
+            isClickable = true
+            setOnClickListener { stopAlarm() }
+        }
+        stopBar.addView(icon(Icons.Kind.STOP, Color.WHITE, 22), LinearLayout.LayoutParams(dp(22), dp(22)))
+        stopBar.addView(
+            TextView(this).apply {
+                text = getString(R.string.recv_stop_alarm)
+                textSize = 18f
+                setTypeface(null, Typeface.BOLD)
+                setTextColor(Color.WHITE)
+            },
+            LinearLayout.LayoutParams(-2, -2).apply { marginStart = dp(10) }
+        )
+        root.addView(stopBar, LinearLayout.LayoutParams(-1, dp(60)).apply { bottomMargin = dp(12) })
 
         // CONFIGURATION
         configCard = card().apply {
@@ -88,9 +122,10 @@ class ReceiverActivity : Activity() {
         batBtn = addRow(configCard, getString(R.string.perm_battery)) { askBattery() }
         root.addView(configCard)
 
-        // CODE DE LA VOITURE
-        root.addView(sectionTitle(getString(R.string.section_code)))
-        val codeCard = card()
+        // CODE DE LA VOITURE (caché pendant l'écoute)
+        codeTitle = sectionTitle(getString(R.string.section_code))
+        root.addView(codeTitle)
+        codeCard = card()
         codeInput = EditText(this).apply {
             hint = getString(R.string.code_hint)
             setHintTextColor(Color.rgb(160, 165, 175))
@@ -109,17 +144,62 @@ class ReceiverActivity : Activity() {
         )
         root.addView(codeCard)
 
-        // VOITURE : état, carte, boutons
-        root.addView(sectionTitle(getString(R.string.recv_section_car)))
-        val carCard = card()
+        // BOUTON D'ACTIVATION (en haut)
+        toggleBtn = Button(this).apply {
+            isAllCaps = false
+            textSize = 20f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.WHITE)
+            stateListAnimator = null
+        }
+        root.addView(toggleBtn, LinearLayout.LayoutParams(-1, dp(68)).apply { topMargin = dp(8) })
+
+        // CARTE VOITURE : état, carte, boutons, infos
+        val carCard = card().apply {
+            (layoutParams as LinearLayout.LayoutParams).topMargin = dp(16)
+        }
+
+        val statusRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(2), 0, dp(2), dp(12))
+        }
+        dot = View(this)
+        statusRow.addView(dot, LinearLayout.LayoutParams(dp(12), dp(12)))
         linkText = TextView(this).apply {
-            textSize = 16f
+            textSize = 15f
             setTypeface(null, Typeface.BOLD)
             setTextColor(NOIR)
-            setPadding(dp(2), 0, 0, dp(8))
         }
-        carCard.addView(linkText)
+        statusRow.addView(
+            linkText,
+            LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                marginStart = dp(10)
+                marginEnd = dp(8)
+            }
+        )
+        batBox = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            visibility = View.GONE
+        }
+        batIcon = ImageView(this)
+        batText = TextView(this).apply {
+            textSize = 14f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(NOIR)
+        }
+        batBox.addView(batIcon, LinearLayout.LayoutParams(dp(24), dp(24)))
+        batBox.addView(batText, LinearLayout.LayoutParams(-2, -2).apply { marginStart = dp(4) })
+        statusRow.addView(batBox)
+        carCard.addView(statusRow)
 
+        // Carte (coins arrondis) + bouton de recentrage
+        val mapBox = FrameLayout(this).apply {
+            background = rounded(Color.rgb(235, 236, 239), Color.TRANSPARENT, 14)
+            clipToOutline = true
+            outlineProvider = ViewOutlineProvider.BACKGROUND
+        }
         web = WebView(this).apply {
             settings.javaScriptEnabled = true
             setOnTouchListener { v, _ ->
@@ -134,27 +214,53 @@ class ReceiverActivity : Activity() {
             }
             loadDataWithBaseURL(Config.SERVER + "/", MAP_HTML, "text/html", "UTF-8", null)
         }
-        carCard.addView(web, LinearLayout.LayoutParams(-1, dp(240)))
+        mapBox.addView(web, FrameLayout.LayoutParams(-1, -1))
+        val recenter = ImageView(this).apply {
+            setImageDrawable(icon(Icons.Kind.TARGET, NOIR, 24))
+            scaleType = ImageView.ScaleType.CENTER
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(Color.WHITE)
+                setStroke(dp(1), Color.rgb(220, 223, 229))
+            }
+            elevation = dp(4).toFloat()
+            isClickable = true
+            setOnClickListener { if (mapReady) web.evaluateJavascript("recenter()", null) }
+        }
+        mapBox.addView(
+            recenter,
+            FrameLayout.LayoutParams(dp(46), dp(46), Gravity.BOTTOM or Gravity.END).apply {
+                setMargins(0, 0, dp(12), dp(12))
+            }
+        )
+        carCard.addView(mapBox, LinearLayout.LayoutParams(-1, dp(320)))
 
+        // Boutons côte à côte : Interroger / Itinéraire
+        val btnRow = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        btnRow.addView(
+            iconButton(Icons.Kind.WAVES, getString(R.string.ask_short)) { askCar() },
+            LinearLayout.LayoutParams(0, dp(52), 1f).apply { marginEnd = dp(10) }
+        )
+        btnRow.addView(
+            iconButton(Icons.Kind.NAV, getString(R.string.route_btn)) { openRoute() },
+            LinearLayout.LayoutParams(0, dp(52), 1f)
+        )
+        carCard.addView(btnRow, LinearLayout.LayoutParams(-1, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+            topMargin = dp(12)
+        })
+
+        // Dernière alerte et dernière position
+        alertLine = infoLine()
+        posLine = infoLine()
         carCard.addView(
-            grayButton(getString(R.string.ask_btn)) { askCar() },
-            LinearLayout.LayoutParams(-1, dp(52)).apply { topMargin = dp(12) }
+            infoRow(Icons.Kind.ALERT, Color.rgb(200, 110, 0), alertLine),
+            LinearLayout.LayoutParams(-1, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(16) }
         )
         carCard.addView(
-            grayButton(getString(R.string.details_btn)) { showDetails() },
-            LinearLayout.LayoutParams(-1, dp(52)).apply { topMargin = dp(10) }
+            infoRow(Icons.Kind.PIN, GRIS_TEXTE, posLine),
+            LinearLayout.LayoutParams(-1, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) }
         )
         root.addView(carCard)
-
-        // BOUTON D'ACTIVATION RECTANGULAIRE
-        toggleBtn = Button(this).apply {
-            isAllCaps = false
-            textSize = 20f
-            setTypeface(null, Typeface.BOLD)
-            setTextColor(Color.WHITE)
-            stateListAnimator = null
-        }
-        root.addView(toggleBtn, LinearLayout.LayoutParams(-1, dp(68)).apply { topMargin = dp(16) })
 
         // PLUS
         root.addView(
@@ -167,7 +273,7 @@ class ReceiverActivity : Activity() {
                 stateListAnimator = null
                 setOnClickListener { startActivity(Intent(this@ReceiverActivity, PlusActivity::class.java)) }
             },
-            LinearLayout.LayoutParams(-1, dp(56)).apply { topMargin = dp(16); bottomMargin = dp(20) }
+            LinearLayout.LayoutParams(-1, dp(56)).apply { topMargin = dp(12); bottomMargin = dp(20) }
         )
 
         updateStatus(prefs.getBoolean("r_active", false))
@@ -215,11 +321,7 @@ class ReceiverActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
-        AlertSound.stop()
-        getSystemService(NotificationManager::class.java).apply {
-            cancel(ReceiverService.ID_ALERT)
-            cancel(ReceiverService.ID_LOST)
-        }
+        stopAlarm()
         refreshConfig()
         handler.removeCallbacks(ticker)
         handler.post(ticker)
@@ -251,6 +353,16 @@ class ReceiverActivity : Activity() {
         }
     }
 
+    // ALARME
+    private fun stopAlarm() {
+        AlertSound.stop()
+        getSystemService(NotificationManager::class.java).apply {
+            cancel(ReceiverService.ID_ALERT)
+            cancel(ReceiverService.ID_LOST)
+        }
+        if (::stopBar.isInitialized) stopBar.visibility = View.GONE
+    }
+
     // ÉTAT DE LA LIAISON AVEC LA VOITURE
     private fun linkState(): Pair<Link, Int> {
         val p = getSharedPreferences("p", MODE_PRIVATE)
@@ -273,44 +385,51 @@ class ReceiverActivity : Activity() {
     }
 
     private fun refreshInfo() {
+        val p = getSharedPreferences("p", MODE_PRIVATE)
         val (state, min) = linkState()
+
         linkText.text = when (state) {
             Link.STOPPED -> getString(R.string.link_off)
-            Link.WAIT -> getString(R.string.car_link_wait)
+            Link.WAIT -> getString(R.string.link_wait)
             Link.SERVER -> getString(R.string.link_server)
             Link.NONE -> getString(R.string.link_none)
             Link.CAR_OFF -> getString(R.string.link_car_off)
             Link.OK -> getString(R.string.link_ok, min)
             Link.OLD -> getString(R.string.link_old, min)
         }
+        dot.background = GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(
+                when (state) {
+                    Link.OK -> Color.rgb(25, 145, 80)
+                    Link.OLD, Link.WAIT -> Color.rgb(230, 126, 0)
+                    Link.SERVER, Link.NONE -> Color.rgb(197, 22, 37)
+                    Link.STOPPED, Link.CAR_OFF -> Color.rgb(150, 155, 165)
+                }
+            )
+        }
+
+        // Batterie du téléphone de la voiture
+        val bat = p.getInt("r_battery", -1)
+        if (bat >= 0 && (state == Link.OK || state == Link.OLD)) {
+            batIcon.setImageDrawable(
+                Icons.drawable(this, Icons.Kind.BATTERY, if (bat <= 20) Color.rgb(197, 22, 37) else NOIR, 24, bat)
+            )
+            batText.text = "$bat%"
+            batBox.visibility = View.VISIBLE
+        } else {
+            batBox.visibility = View.GONE
+        }
+
+        // Dernière alerte et dernière position
+        val fmt = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
+        fun t(ts: Long) = if (ts > 0) fmt.format(Date(ts * 1000)) else getString(R.string.info_none)
+        alertLine.text = "${getString(R.string.info_alert)} : ${t(p.getLong("r_alert_ts", 0))}"
+        posLine.text = "${getString(R.string.info_pos)} : ${t(p.getLong("r_pos_ts", 0))}"
+
+        stopBar.visibility = if (AlertSound.isPlaying()) View.VISIBLE else View.GONE
         paintToggle(state == Link.OK)
         updateMap()
-    }
-
-    // Détails dans une fenêtre séparée
-    private fun showDetails() {
-        val p = getSharedPreferences("p", MODE_PRIVATE)
-        val fmt = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
-        fun t(ms: Long) = if (ms > 0) fmt.format(Date(ms)) else getString(R.string.info_none)
-
-        val pollMs = p.getLong("r_poll_ms", 0L)
-        val age = p.getLong("r_alive_age", -1L)
-        val aliveMs = if (age >= 0 && pollMs > 0) pollMs - age * 1000 else 0L
-
-        val sb = StringBuilder()
-        sb.append("🚨 ${getString(R.string.info_alert)} :\n${t(p.getLong("r_alert_ts", 0) * 1000)}\n\n")
-        sb.append("📍 ${getString(R.string.info_pos)} :\n${t(p.getLong("r_pos_ts", 0) * 1000)}")
-        val lat = p.getString("r_lat", null)?.toDoubleOrNull()
-        val lng = p.getString("r_lng", null)?.toDoubleOrNull()
-        if (lat != null && lng != null) sb.append("\n" + String.format("%.5f, %.5f", lat, lng))
-        sb.append("\n\n💚 ${getString(R.string.info_alive)} :\n${t(aliveMs)}")
-        if (p.contains("r_battery")) sb.append("\n\n🔋 ${p.getInt("r_battery", 0)}%")
-
-        AppDialog.show(
-            this,
-            title = getString(R.string.details_title),
-            message = sb.toString()
-        )
     }
 
     // CARTE
@@ -328,6 +447,34 @@ class ReceiverActivity : Activity() {
         val pts = trace.split(";").filter { it.contains(",") }
             .joinToString(",", "[", "]") { "[$it]" }
         web.evaluateJavascript("setCar($lat,$lng,$acc,$pts)", null)
+    }
+
+    // Itinéraire vers la voiture (Google Maps, sinon une autre appli de cartes)
+    private fun openRoute() {
+        val p = getSharedPreferences("p", MODE_PRIVATE)
+        val lat = p.getString("r_lat", null)
+        val lng = p.getString("r_lng", null)
+        if (lat == null || lng == null) {
+            Toast.makeText(this, R.string.msg_no_pos, Toast.LENGTH_SHORT).show()
+            return
+        }
+        try {
+            startActivity(
+                Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q=$lat,$lng"))
+                    .setPackage("com.google.android.apps.maps")
+            )
+        } catch (_: Exception) {
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("geo:$lat,$lng?q=$lat,$lng(Voiture)")))
+            } catch (_: Exception) {
+                try {
+                    startActivity(
+                        Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/dir/?api=1&destination=$lat,$lng"))
+                    )
+                } catch (_: Exception) {
+                }
+            }
+        }
     }
 
     private fun scanCode() {
@@ -405,6 +552,9 @@ class ReceiverActivity : Activity() {
     private fun updateStatus(active: Boolean) {
         codeInput.isEnabled = !active
         codeInput.alpha = if (active) 0.5f else 1f
+        val vis = if (active) View.GONE else View.VISIBLE
+        codeTitle.visibility = vis
+        codeCard.visibility = vis
         toggleBtn.text = getString(if (active) R.string.recv_btn_on else R.string.recv_btn_off)
         refreshInfo()
     }
@@ -417,6 +567,53 @@ class ReceiverActivity : Activity() {
     }
 
     // OUTILS D'INTERFACE
+    private fun icon(kind: Icons.Kind, color: Int, sizeDp: Int) = Icons.drawable(this, kind, color, sizeDp)
+
+    // Bouton gris (style de la page Plus) avec icône et texte centrés ensemble
+    private fun iconButton(kind: Icons.Kind, label: String, onClick: () -> Unit): LinearLayout {
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            background = rounded(Color.rgb(235, 236, 239), Color.rgb(220, 223, 229), 12)
+            isClickable = true
+            setOnClickListener { onClick() }
+            addView(
+                ImageView(this@ReceiverActivity).apply { setImageDrawable(icon(kind, NOIR, 22)) },
+                LinearLayout.LayoutParams(dp(22), dp(22))
+            )
+            addView(
+                TextView(this@ReceiverActivity).apply {
+                    text = label
+                    textSize = 16f
+                    setTextColor(NOIR)
+                },
+                LinearLayout.LayoutParams(-2, -2).apply { marginStart = dp(8) }
+            )
+        }
+    }
+
+    private fun infoRow(kind: Icons.Kind, color: Int, text: TextView): LinearLayout {
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            addView(
+                ImageView(this@ReceiverActivity).apply { setImageDrawable(icon(kind, color, 18)) },
+                LinearLayout.LayoutParams(dp(18), dp(18))
+            )
+            addView(
+                text,
+                LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                    marginStart = dp(10)
+                }
+            )
+        }
+    }
+
+    private fun infoLine() = TextView(this).apply {
+        textSize = 14f
+        setTextColor(GRIS_TEXTE)
+    }
+
     private fun addRow(card: LinearLayout, label: String, onClick: () -> Unit): Button {
         val row = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -477,7 +674,7 @@ class ReceiverActivity : Activity() {
         this.text = text
         textSize = 13f
         setTypeface(null, Typeface.BOLD)
-        setTextColor(Color.rgb(90, 95, 105))
+        setTextColor(GRIS_TEXTE)
         setPadding(dp(4), dp(18), dp(4), dp(5))
     }
 

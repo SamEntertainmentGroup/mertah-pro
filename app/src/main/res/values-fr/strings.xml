@@ -85,11 +85,11 @@
     <string name="car_link_ok">🟢 Connecté au serveur · %1$s</string>
     <string name="car_link_fail">⚠ Serveur injoignable (vérifie internet)</string>
     <string name="car_link_wait">⏳ Connexion au serveur…</string>
-    <string name="link_ok">🟢 Voiture connectée · vue il y a %1$d min</string>
-    <string name="link_old">🟠 Aucun signe de la voiture depuis %1$d min</string>
-    <string name="link_none">🔴 Aucune voiture trouvée avec ce code</string>
-    <string name="link_server">⚠ Serveur injoignable</string>
-    <string name="link_off">⚪ Écoute arrêtée</string>
+    <string name="link_ok">Voiture connectée · vue il y a %1$d min</string>
+    <string name="link_old">Aucun signe de la voiture depuis %1$d min</string>
+    <string name="link_none">Aucune voiture trouvée avec ce code</string>
+    <string name="link_server">Serveur injoignable</string>
+    <string name="link_off">Écoute arrêtée</string>
     <string name="ask_btn">📡 Interroger la voiture</string>
     <string name="ask_sent">Demande envoyée : réponse dans ~20 secondes</string>
     <string name="ask_fail">Échec de l’envoi de la demande</string>
@@ -106,7 +106,7 @@
     <string name="recv_lost_text">Aucun signe depuis %1$d min (téléphone éteint ou sans internet ?)</string>
     <string name="recv_off_title">ℹ Protection de la voiture désactivée</string>
     <string name="recv_off_text">Le téléphone de la voiture a été arrêté.</string>
-    <string name="link_car_off">⚪ Voiture désactivée</string>
+    <string name="link_car_off">Voiture désactivée</string>
     <string name="ch_info">Infos voiture</string>
     <string name="ch_boot">Redémarrage voiture</string>
     <string name="boot_title">🔓 Protection arrêtée après redémarrage</string>
@@ -116,12 +116,16 @@
     <string name="role_confirm_choice">Ce téléphone sera : %1$s\n\nPour changer plus tard, il faudra réinstaller l’application.</string>
     <string name="details_btn">ℹ️ Détails de la voiture</string>
     <string name="details_title">Détails de la voiture</string>
-    <string name="recv_btn_on">🔒 Écoute active</string>
-    <string name="recv_btn_off">🔓 Écoute arrêtée</string>
+    <string name="recv_btn_on">Écoute active</string>
+    <string name="recv_btn_off">Écoute arrêtée</string>
     <string name="role_subtitle">Installe l’app sur 2 téléphones : un dans la voiture, l’autre avec toi.</string>
     <string name="role_car_short">le téléphone de la voiture (il envoie les alertes)</string>
     <string name="role_receiver_short">mon téléphone (il reçoit les alertes)</string>
     <string name="role_confirm_title">Confirmer ton choix</string>
     <string name="dialog_ok">Compris</string>
     <string name="dialog_cancel">Annuler</string>
+    <string name="ask_short">Interroger</string>
+    <string name="route_btn">Itinéraire</string>
+    <string name="recv_stop_alarm">Arrêter l’alarme</string>
+    <string name="link_wait">Connexion au serveur…</string>
 </resources>

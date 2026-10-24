@@ -161,6 +161,20 @@ class ReceiverService : Service() {
         return list.takeLast(60).joinToString(";")
     }
 
+    // Action « Arrêter l'alarme » dans la notification
+    private fun stopAction(): Notification.Action {
+        val pi = PendingIntent.getBroadcast(
+            this, 2,
+            Intent(this, StopAlarmReceiver::class.java),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        return Notification.Action.Builder(
+            Icon.createWithResource(this, android.R.drawable.ic_lock_silent_mode),
+            getString(R.string.recv_stop_alarm),
+            pi
+        ).build()
+    }
+
     private fun openApp(): PendingIntent = PendingIntent.getActivity(
         this, 0,
         Intent(this, ReceiverActivity::class.java)
@@ -179,6 +193,7 @@ class ReceiverService : Service() {
             .setAutoCancel(true)
             .setCategory(Notification.CATEGORY_ALARM)
             .setVisibility(Notification.VISIBILITY_PUBLIC)
+            .addAction(stopAction())
             .build()
         getSystemService(NotificationManager::class.java).notify(ID_LOST, n)
     }
@@ -235,6 +250,7 @@ class ReceiverService : Service() {
             )
         }
 
+        b.addAction(stopAction())
         getSystemService(NotificationManager::class.java).notify(ID_ALERT, b.build())
     }
 

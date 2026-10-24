@@ -38,6 +38,8 @@
                 android:value="antivol_alert_receiver"/>
         </service>
 
+        <receiver android:name=".StopAlarmReceiver" android:exported="false"/>
+
         <receiver android:name=".BootReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>

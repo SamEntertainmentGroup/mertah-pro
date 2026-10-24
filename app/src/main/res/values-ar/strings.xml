@@ -85,11 +85,11 @@
     <string name="car_link_ok">🟢 متصل بالخادم · %1$s</string>
     <string name="car_link_fail">⚠ الخادم غير متاح (تحقق من الإنترنت)</string>
     <string name="car_link_wait">⏳ جارٍ الاتصال بالخادم…</string>
-    <string name="link_ok">🟢 السيارة متصلة · منذ %1$d دقيقة</string>
-    <string name="link_old">🟠 لا إشارة من السيارة منذ %1$d دقيقة</string>
-    <string name="link_none">🔴 لا توجد سيارة بهذا الرمز</string>
-    <string name="link_server">⚠ الخادم غير متاح</string>
-    <string name="link_off">⚪ الاستماع متوقف</string>
+    <string name="link_ok">السيارة متصلة · منذ %1$d دقيقة</string>
+    <string name="link_old">لا إشارة من السيارة منذ %1$d دقيقة</string>
+    <string name="link_none">لا توجد سيارة بهذا الرمز</string>
+    <string name="link_server">الخادم غير متاح</string>
+    <string name="link_off">الاستماع متوقف</string>
     <string name="ask_btn">📡 استعلام عن السيارة</string>
     <string name="ask_sent">تم إرسال الطلب: الرد خلال ~20 ثانية</string>
     <string name="ask_fail">تعذر إرسال الطلب</string>
@@ -106,7 +106,7 @@
     <string name="recv_lost_text">لا إشارة منذ %1$d دقيقة (الهاتف مطفأ أو بلا إنترنت؟)</string>
     <string name="recv_off_title">ℹ تم إيقاف حماية السيارة</string>
     <string name="recv_off_text">تم إيقاف هاتف السيارة.</string>
-    <string name="link_car_off">⚪ السيارة معطلة</string>
+    <string name="link_car_off">السيارة معطلة</string>
     <string name="ch_info">معلومات السيارة</string>
     <string name="ch_boot">إعادة تشغيل السيارة</string>
     <string name="boot_title">🔓 توقفت الحماية بعد إعادة التشغيل</string>
@@ -116,12 +116,16 @@
     <string name="role_confirm_choice">سيكون هذا الهاتف: %1$s\n\nللتغيير لاحقًا يجب إعادة تثبيت التطبيق.</string>
     <string name="details_btn">ℹ️ تفاصيل السيارة</string>
     <string name="details_title">تفاصيل السيارة</string>
-    <string name="recv_btn_on">🔒 الاستماع نشط</string>
-    <string name="recv_btn_off">🔓 الاستماع متوقف</string>
+    <string name="recv_btn_on">الاستماع نشط</string>
+    <string name="recv_btn_off">الاستماع متوقف</string>
     <string name="role_subtitle">ثبّت التطبيق على هاتفين: واحد في السيارة والآخر معك.</string>
     <string name="role_car_short">هاتف السيارة (يرسل الإنذارات)</string>
     <string name="role_receiver_short">هاتفي (يستقبل الإنذارات)</string>
     <string name="role_confirm_title">أكّد اختيارك</string>
     <string name="dialog_ok">فهمت</string>
     <string name="dialog_cancel">إلغاء</string>
+    <string name="ask_short">استعلام</string>
+    <string name="route_btn">المسار</string>
+    <string name="recv_stop_alarm">إيقاف الإنذار</string>
+    <string name="link_wait">جارٍ الاتصال بالخادم…</string>
 </resources>

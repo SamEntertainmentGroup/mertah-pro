@@ -47,6 +47,8 @@ object AlertSound {
         }
     }
 
+    fun isPlaying(): Boolean = player != null
+
     fun stop() {
         handler.removeCallbacksAndMessages(null)
         player?.let {
