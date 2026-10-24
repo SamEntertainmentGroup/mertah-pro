@@ -250,7 +250,7 @@ class ReceiverActivity : Activity() {
                 setMargins(0, 0, dp(12), dp(12))
             }
         )
-        carCard.addView(mapBox, LinearLayout.LayoutParams(-1, dp(240)))
+        carCard.addView(mapBox, LinearLayout.LayoutParams(-1, dp(320)))
 
         // Boutons côte à côte : Interroger / Itinéraire
         val btnRow = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
