@@ -93,7 +93,10 @@ class ReceiverActivity : Activity() {
             isClickable = true
             setOnClickListener { stopAlarm() }
         }
-        stopBar.addView(icon(Icons.Kind.STOP, Color.WHITE, 22), LinearLayout.LayoutParams(dp(22), dp(22)))
+        stopBar.addView(
+            ImageView(this).apply { setImageDrawable(icon(Icons.Kind.STOP, Color.WHITE, 22)) },
+            LinearLayout.LayoutParams(dp(22), dp(22))
+        )
         stopBar.addView(
             TextView(this).apply {
                 text = getString(R.string.recv_stop_alarm)
