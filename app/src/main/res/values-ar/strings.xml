@@ -29,9 +29,9 @@
     <string name="how_2_body">اختر «في السيارة»، أدخل رمزك السري، حدد الحساسية ثم فعّل الحماية.</string>
     <string name="how_3_title">3. هاتفك.</string>
     <string name="how_3_body">اختر «هاتفي»، أدخل الرمز نفسه وفعّل الاستماع. إذا تحركت السيارة يصلك إنذار مع موقعها.</string>
-    <string name="btn_unlock">🔓 فتح الحساسية</string>
-    <string name="btn_share">🔗 مشاركة التطبيق</string>
-    <string name="btn_contact">💬 اتصل بنا</string>
+    <string name="btn_unlock">فتح الحساسية</string>
+    <string name="btn_share">مشاركة التطبيق</string>
+    <string name="btn_contact">اتصل بنا</string>
     <string name="btn_back">العودة إلى الصفحة الرئيسية</string>
     <string name="share_text">AutoAlert: تطبيق يرسل لك إنذارًا مع موقع GPS إذا تحركت سيارتك أثناء الليل.</string>
     <string name="share_chooser">مشاركة التطبيق</string>
@@ -85,8 +85,8 @@
     <string name="car_link_ok">🟢 متصل بالخادم · %1$s</string>
     <string name="car_link_fail">⚠ الخادم غير متاح (تحقق من الإنترنت)</string>
     <string name="car_link_wait">⏳ جارٍ الاتصال بالخادم…</string>
-    <string name="link_ok">السيارة متصلة · منذ %1$d دقيقة</string>
-    <string name="link_old">لا إشارة من السيارة منذ %1$d دقيقة</string>
+    <string name="link_ok">السيارة متصلة · %1$d د</string>
+    <string name="link_old">لا إشارة منذ %1$d د</string>
     <string name="link_none">لا توجد سيارة بهذا الرمز</string>
     <string name="link_server">الخادم غير متاح</string>
     <string name="link_off">الاستماع متوقف</string>
@@ -127,5 +127,5 @@
     <string name="ask_short">استعلام</string>
     <string name="route_btn">المسار</string>
     <string name="recv_stop_alarm">إيقاف الإنذار</string>
-    <string name="link_wait">جارٍ الاتصال بالخادم…</string>
+    <string name="link_wait">جارٍ الاتصال…</string>
 </resources>

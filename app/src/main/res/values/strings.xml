@@ -29,9 +29,9 @@
     <string name="how_2_body">Choose “In the car”, enter your secret code, set the sensitivity and activate the protection.</string>
     <string name="how_3_title">3. Your phone.</string>
     <string name="how_3_body">Choose “My phone”, enter the same code and start listening. If the car moves, you get an alarm with its GPS position.</string>
-    <string name="btn_unlock">🔓 Unlock sensitivity</string>
-    <string name="btn_share">🔗 Share the app</string>
-    <string name="btn_contact">💬 Contact</string>
+    <string name="btn_unlock">Unlock sensitivity</string>
+    <string name="btn_share">Share the app</string>
+    <string name="btn_contact">Contact</string>
     <string name="btn_back">Back to home</string>
     <string name="share_text">AutoAlert: an app that sends you an alarm with the GPS position if your car moves during the night.</string>
     <string name="share_chooser">Share the app</string>
@@ -85,9 +85,9 @@
     <string name="car_link_ok">🟢 Connected to the server · %1$s</string>
     <string name="car_link_fail">⚠ Server unreachable (check internet)</string>
     <string name="car_link_wait">⏳ Connecting to the server…</string>
-    <string name="link_ok">Car connected · seen %1$d min ago</string>
-    <string name="link_old">No sign of the car for %1$d min</string>
-    <string name="link_none">No car found with this code</string>
+    <string name="link_ok">Car connected · %1$d min</string>
+    <string name="link_old">No sign for %1$d min</string>
+    <string name="link_none">No car with this code</string>
     <string name="link_server">Server unreachable</string>
     <string name="link_off">Listening stopped</string>
     <string name="ask_btn">📡 Ask the car</string>
@@ -127,5 +127,5 @@
     <string name="ask_short">Ask</string>
     <string name="route_btn">Route</string>
     <string name="recv_stop_alarm">Stop the alarm</string>
-    <string name="link_wait">Connecting to the server…</string>
+    <string name="link_wait">Connecting…</string>
 </resources>

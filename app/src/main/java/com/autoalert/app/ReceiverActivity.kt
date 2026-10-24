@@ -184,9 +184,11 @@ class ReceiverActivity : Activity() {
         dot = View(this)
         statusRow.addView(dot, LinearLayout.LayoutParams(dp(12), dp(12)))
         linkText = TextView(this).apply {
-            textSize = 15f
+            textSize = 14f
             setTypeface(null, Typeface.BOLD)
             setTextColor(NOIR)
+            maxLines = 1
+            ellipsize = android.text.TextUtils.TruncateAt.END
         }
         statusRow.addView(
             linkText,
@@ -250,7 +252,7 @@ class ReceiverActivity : Activity() {
                 setMargins(0, 0, dp(12), dp(12))
             }
         )
-        carCard.addView(mapBox, LinearLayout.LayoutParams(-1, dp(320)))
+        carCard.addView(mapBox, LinearLayout.LayoutParams(-1, dp(240)))
 
         // Boutons côte à côte : Interroger / Itinéraire
         val btnRow = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
@@ -280,7 +282,7 @@ class ReceiverActivity : Activity() {
         root.addView(carCard)
 
         // GRAND BOUTON D'ACTIVATION sous la carte : prend tout l'espace jusqu'au bouton Plus
-        root.addView(toggleBtn, LinearLayout.LayoutParams(-1, 0, 1f).apply { topMargin = dp(8) })
+        root.addView(toggleBtn, LinearLayout.LayoutParams(-1, 0, 1f).apply { topMargin = dp(16) })
 
         // PLUS
         root.addView(
@@ -293,7 +295,7 @@ class ReceiverActivity : Activity() {
                 stateListAnimator = null
                 setOnClickListener { startActivity(Intent(this@ReceiverActivity, PlusActivity::class.java)) }
             },
-            LinearLayout.LayoutParams(-1, dp(56)).apply { topMargin = dp(12); bottomMargin = dp(20) }
+            LinearLayout.LayoutParams(-1, dp(56)).apply { topMargin = dp(24); bottomMargin = dp(20) }
         )
 
         updateStatus(prefs.getBoolean("r_active", false))

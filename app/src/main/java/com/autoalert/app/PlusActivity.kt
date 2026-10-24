@@ -59,7 +59,7 @@ class PlusActivity : Activity() {
         val isCar = getSharedPreferences("p", MODE_PRIVATE).getString("role", "car") == "car"
         if (isCar) {
             root.addView(
-                accentButton(getString(R.string.btn_unlock)) {
+                accentButton(Icons.withIcon(this, getString(R.string.btn_unlock), Icons.Kind.LOCK_OPEN, Color.WHITE, 18)) {
                     startActivity(Intent(this@PlusActivity, UnlockActivity::class.java))
                 },
                 buttonParams()
@@ -67,10 +67,10 @@ class PlusActivity : Activity() {
         }
 
         // PARTAGER
-        root.addView(grayButton(getString(R.string.btn_share)) { share() }, buttonParams())
+        root.addView(grayButton(Icons.withIcon(this, getString(R.string.btn_share), Icons.Kind.SHARE, NOIR, 18)) { share() }, buttonParams())
 
         // CONTACT (Messenger)
-        root.addView(grayButton(getString(R.string.btn_contact)) { openMessenger() }, buttonParams())
+        root.addView(grayButton(Icons.withIcon(this, getString(R.string.btn_contact), Icons.Kind.CHAT, NOIR, 18)) { openMessenger() }, buttonParams())
 
         // ESPACE LIBRE : pousse le bouton Retour en bas de l'écran
         root.addView(
@@ -115,7 +115,7 @@ class PlusActivity : Activity() {
     }
 
     // OUTILS D'INTERFACE
-    private fun grayButton(label: String, onClick: () -> Unit): Button {
+    private fun grayButton(label: CharSequence, onClick: () -> Unit): Button {
         return Button(this).apply {
             text = label
             isAllCaps = false
@@ -131,7 +131,7 @@ class PlusActivity : Activity() {
         }
     }
 
-    private fun accentButton(label: String, onClick: () -> Unit): Button {
+    private fun accentButton(label: CharSequence, onClick: () -> Unit): Button {
         return Button(this).apply {
             text = label
             isAllCaps = false

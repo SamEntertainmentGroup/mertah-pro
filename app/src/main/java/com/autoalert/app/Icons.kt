@@ -14,10 +14,22 @@ import kotlin.math.roundToInt
 // Petites icônes dessinées en code (traits fins, style moderne), colorables et nettes à toute taille
 object Icons {
 
-    enum class Kind { TARGET, NAV, WAVES, BATTERY, ALERT, PIN, STOP, CAR, PHONE, LOCK_CLOSED, LOCK_OPEN }
+    enum class Kind { TARGET, NAV, WAVES, BATTERY, ALERT, PIN, STOP, CAR, PHONE, LOCK_CLOSED, LOCK_OPEN, SHARE, CHAT }
 
     fun drawable(ctx: Context, kind: Kind, color: Int, sizeDp: Int = 22, level: Int = 100): Drawable =
         IconDrawable(kind, color, (sizeDp * ctx.resources.displayMetrics.density).roundToInt(), level)
+
+    // Texte avec une icône dessinée juste devant (un seul espace, pas de trou)
+    fun withIcon(ctx: Context, label: String, kind: Kind, color: Int, sizeDp: Int): CharSequence {
+        val d = drawable(ctx, kind, color, sizeDp)
+        d.setBounds(0, 0, d.intrinsicWidth, d.intrinsicHeight)
+        val s = android.text.SpannableString("  $label")
+        s.setSpan(
+            android.text.style.ImageSpan(d, android.text.style.ImageSpan.ALIGN_BASELINE),
+            0, 1, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        return s
+    }
 
     private class IconDrawable(
         val kind: Kind,
@@ -124,6 +136,30 @@ object Icons {
                         addCircle(12f, 20f, 0.9f, Path.Direction.CW)
                     }
                     c.drawPath(p, fill)
+                }
+                Kind.SHARE -> {
+                    val sw = stroke.strokeWidth
+                    stroke.strokeWidth = 1.8f
+                    c.drawLine(8.4f, 10.7f, 15.6f, 6.3f, stroke)
+                    c.drawLine(8.4f, 13.3f, 15.6f, 17.7f, stroke)
+                    stroke.strokeWidth = sw
+                    c.drawCircle(18f, 5.5f, 3f, fill)
+                    c.drawCircle(6f, 12f, 3f, fill)
+                    c.drawCircle(18f, 18.5f, 3f, fill)
+                }
+                Kind.CHAT -> {
+                    val bubble = Path().apply {
+                        fillType = Path.FillType.EVEN_ODD
+                        addRoundRect(RectF(3f, 4f, 21f, 17f), 3.5f, 3.5f, Path.Direction.CW)
+                        addCircle(8f, 10.5f, 1.3f, Path.Direction.CW)
+                        addCircle(12f, 10.5f, 1.3f, Path.Direction.CW)
+                        addCircle(16f, 10.5f, 1.3f, Path.Direction.CW)
+                    }
+                    c.drawPath(bubble, fill)
+                    val tail = Path().apply {
+                        moveTo(7f, 16f); lineTo(7f, 21f); lineTo(12.5f, 16f); close()
+                    }
+                    c.drawPath(tail, fill)
                 }
                 Kind.LOCK_CLOSED, Kind.LOCK_OPEN -> {
                     val shackle = Path().apply {

@@ -858,15 +858,13 @@ class MainActivity : Activity() {
 
         choiceNames.forEachIndexed { index, nameRes ->
             val locked = index > 0 && !unlocked
-            sensitivityLabels.getOrNull(index)?.let { label ->
-                label.text = getString(nameRes)
-                // Petit cadenas dessiné devant le nom tant que le niveau est verrouillé
-                label.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                    if (locked) Icons.drawable(this, Icons.Kind.LOCK_CLOSED, Color.rgb(90, 95, 105), 14) else null,
-                    null, null, null
-                )
-                label.compoundDrawablePadding = dp(4)
-            }
+            sensitivityLabels.getOrNull(index)?.text =
+                if (locked) {
+                    // Petit cadenas dessiné collé au nom
+                    Icons.withIcon(this, getString(nameRes), Icons.Kind.LOCK_CLOSED, Color.rgb(90, 95, 105), 13)
+                } else {
+                    getString(nameRes)
+                }
         }
 
         if (!unlocked && sensitivityBar.progress != 0) {
