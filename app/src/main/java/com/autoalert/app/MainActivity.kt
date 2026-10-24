@@ -31,7 +31,8 @@ class MainActivity : Activity() {
     private lateinit var linkText: TextView
     private lateinit var sensitivityBar: SeekBar
     private val sensitivityLabels = mutableListOf<TextView>()
-    private lateinit var toggleBtn: Button
+    private lateinit var toggleBtn: LinearLayout
+    private lateinit var toggleIcon: ImageView
     private lateinit var configCard: LinearLayout
     private lateinit var callBtn: Button
     private lateinit var notifBtn: Button
@@ -259,31 +260,41 @@ class MainActivity : Activity() {
         highlightSensitivity(currentMode)
         refreshSensitivity()
 
-        // GRAND BOUTON ROND : cadenas fermé = actif, ouvert = inactif
-        toggleBtn = Button(this).apply {
-            isAllCaps = false
-            textSize = 80f
-            setPadding(0, 0, 0, 0)
-            minWidth = 0
-            minHeight = 0
-            minimumWidth = 0
-            minimumHeight = 0
-            stateListAnimator = null
+        // GRAND BOUTON RECTANGULAIRE : cadenas fermé = actif, ouvert = inactif
+        // Il remplit tout l'espace libre entre la sensibilité et le bouton Plus
+        toggleIcon = ImageView(this).apply { scaleType = ImageView.ScaleType.FIT_CENTER }
+        toggleBtn = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            isClickable = true
+            addView(toggleIcon, LinearLayout.LayoutParams(dp(72), dp(72)))
+            // le cadenas grandit avec le bouton, donc avec la taille de l'écran
+            addOnLayoutChangeListener { _, l, t, r, b, _, _, _, _ ->
+                val size = (minOf(r - l, b - t) * 0.45f).toInt().coerceAtLeast(dp(48))
+                if (toggleIcon.layoutParams.width != size) {
+                    toggleIcon.post {
+                        val lp = toggleIcon.layoutParams
+                        lp.width = size
+                        lp.height = size
+                        toggleIcon.layoutParams = lp
+                    }
+                }
+            }
         }
 
         val toggleBox = FrameLayout(this).apply {
             setPadding(0, dp(16), 0, dp(16))
+            minimumHeight = dp(140)
         }
 
         toggleBox.addView(
             toggleBtn,
             FrameLayout.LayoutParams(
-                dp(250),
-                dp(250),
-                Gravity.CENTER
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
             )
         )
-        
+
         root.addView(
             toggleBox,
             LinearLayout.LayoutParams(
@@ -419,9 +430,6 @@ class MainActivity : Activity() {
 
         setContentView(frame)
 
-        root.viewTreeObserver.addOnGlobalLayoutListener {
-            fitToggle(scroll.height, toggleBox)
-        }
     }
 
     override fun onResume() {
@@ -449,7 +457,7 @@ class MainActivity : Activity() {
     private fun showQr() {
         val code = phoneInput.text.toString().trim()
         if (!code.matches(Regex("^[A-Za-z0-9]{8,32}$"))) {
-            Toast.makeText(this, R.string.msg_invalid_code, Toast.LENGTH_LONG).show()
+            TopBanner.show(this, getString(R.string.msg_invalid_code), false)
             return
         }
         val img = ImageView(this).apply {
@@ -797,21 +805,19 @@ class MainActivity : Activity() {
     }
 
     
-    // ÉTAT : bouton rond plein, vert ou rouge
+    // ÉTAT : bouton rectangulaire plein, vert ou rouge
     private fun updateStatus(
         active: Boolean
     ) {
 
-        // Cadenas dessiné (même style que l'écran « Mon téléphone »), centré sur 45 % du rond
-        toggleBtn.text = ""
-        toggleBtn.foreground = android.graphics.drawable.InsetDrawable(
+        // Même cadenas dessiné que sur l'écran « Mon téléphone »
+        toggleIcon.setImageDrawable(
             Icons.drawable(
                 this,
                 if (active) Icons.Kind.LOCK_CLOSED else Icons.Kind.LOCK_OPEN,
                 Color.WHITE,
                 24
-            ),
-            0.275f
+            )
         )
 
         toggleBtn.contentDescription =
@@ -844,7 +850,7 @@ class MainActivity : Activity() {
 
     private fun paintToggle(active: Boolean) {
         toggleBtn.background = GradientDrawable().apply {
-            shape = GradientDrawable.OVAL
+            cornerRadius = dp(16).toFloat()
             setColor(
                 if (active && carLinked()) Color.rgb(8, 120, 61)   // Vert foncé
                 else Color.rgb(197, 22, 37)                         // Rouge foncé
@@ -879,26 +885,6 @@ class MainActivity : Activity() {
             label.setTextColor(
                 if (on) Color.rgb(35, 38, 45) else Color.rgb(140, 145, 155)
             )
-        }
-    }
-
-    // Le bouton rond occupe l'espace libre entre la sensibilité et le bouton Plus
-    private fun fitToggle(viewportHeight: Int, box: View) {
-        var used = root.paddingTop + root.paddingBottom + box.paddingTop + box.paddingBottom
-
-        for (i in 0 until root.childCount) {
-            val child = root.getChildAt(i)
-            if (child === box || child.visibility == View.GONE) continue
-            val lp = child.layoutParams as LinearLayout.LayoutParams
-            used += child.height + lp.topMargin + lp.bottomMargin
-        }
-
-        val width = root.width - root.paddingLeft - root.paddingRight
-        val size = minOf(width, viewportHeight - used).coerceIn(dp(120), dp(300))
-
-        if (toggleBtn.layoutParams.width != size) {
-            toggleBtn.layoutParams = FrameLayout.LayoutParams(size, size, Gravity.CENTER)
-            toggleBtn.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, size * 0.3f)
         }
     }
 

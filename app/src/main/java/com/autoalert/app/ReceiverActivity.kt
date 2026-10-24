@@ -19,6 +19,7 @@ import android.text.InputFilter
 import android.text.InputType
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -29,7 +30,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import android.widget.Toast
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import java.text.DateFormat
 import java.util.Date
@@ -48,6 +48,7 @@ class ReceiverActivity : Activity() {
     private lateinit var notifBtn: Button
     private lateinit var batBtn: Button
     private lateinit var stopBar: LinearLayout
+    private lateinit var stopTitle: TextView
     private lateinit var dot: View
     private lateinit var linkText: TextView
     private lateinit var batBox: LinearLayout
@@ -64,7 +65,7 @@ class ReceiverActivity : Activity() {
     private val ticker = object : Runnable {
         override fun run() {
             refreshInfo()
-            handler.postDelayed(this, 2000)
+            handler.postDelayed(this, 1000)
         }
     }
 
@@ -85,29 +86,37 @@ class ReceiverActivity : Activity() {
             addView(root)
         }
 
-        // BANDEAU « ARRÊTER L'ALARME » (visible seulement quand ça sonne)
+        // POP-UP « ARRÊTER L'ALARME » : flotte en haut, comme une notification (ne décale rien)
         stopBar = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(18), dp(14), dp(18), dp(14))
             background = rounded(Color.rgb(197, 22, 37), Color.TRANSPARENT, 16)
+            elevation = dp(16).toFloat()
             visibility = View.GONE
             isClickable = true
             setOnClickListener { stopAlarm() }
         }
         stopBar.addView(
-            ImageView(this).apply { setImageDrawable(icon(Icons.Kind.STOP, Color.WHITE, 22)) },
-            LinearLayout.LayoutParams(dp(22), dp(22))
+            ImageView(this).apply { setImageDrawable(icon(Icons.Kind.ALERT, Color.WHITE, 28)) },
+            LinearLayout.LayoutParams(dp(28), dp(28))
         )
+        val stopTexts = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        stopTitle = TextView(this).apply {
+            textSize = 17f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.WHITE)
+        }
+        stopTexts.addView(stopTitle)
+        stopTexts.addView(TextView(this).apply {
+            text = getString(R.string.recv_stop_alarm)
+            textSize = 14f
+            setTextColor(Color.argb(230, 255, 255, 255))
+        })
         stopBar.addView(
-            TextView(this).apply {
-                text = getString(R.string.recv_stop_alarm)
-                textSize = 18f
-                setTypeface(null, Typeface.BOLD)
-                setTextColor(Color.WHITE)
-            },
-            LinearLayout.LayoutParams(-2, -2).apply { marginStart = dp(10) }
+            stopTexts,
+            LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(14) }
         )
-        root.addView(stopBar, LinearLayout.LayoutParams(-1, dp(60)).apply { bottomMargin = dp(12) })
 
         // CONFIGURATION
         configCard = card().apply {
@@ -305,18 +314,18 @@ class ReceiverActivity : Activity() {
                 stopService(Intent(this, ReceiverService::class.java))
                 prefs.edit().putBoolean("r_active", false).apply()
                 updateStatus(false)
-                Toast.makeText(this, R.string.msg_stopped, Toast.LENGTH_SHORT).show()
+                TopBanner.show(this, getString(R.string.msg_stopped), false)
                 return@setOnClickListener
             }
 
             val code = codeInput.text.toString().trim()
             if (!code.matches(Regex("^[A-Za-z0-9]{8,32}$"))) {
-                Toast.makeText(this, R.string.msg_invalid_code, Toast.LENGTH_LONG).show()
+                TopBanner.show(this, getString(R.string.msg_invalid_code), false)
                 return@setOnClickListener
             }
             if (!allOk()) {
                 refreshConfig()
-                Toast.makeText(this, R.string.msg_finish_config, Toast.LENGTH_LONG).show()
+                TopBanner.show(this, getString(R.string.msg_finish_config), false)
                 scroll.smoothScrollTo(0, 0)
                 return@setOnClickListener
             }
@@ -335,10 +344,25 @@ class ReceiverActivity : Activity() {
             stopService(Intent(this, ReceiverService::class.java))
             startForegroundService(Intent(this, ReceiverService::class.java))
             updateStatus(true)
-            Toast.makeText(this, R.string.msg_activated, Toast.LENGTH_SHORT).show()
+            TopBanner.show(this, getString(R.string.msg_activated), true)
         }
 
         setContentView(scroll)
+
+        // Ajouté par-dessus le contenu : n'ajoute aucun espace en haut
+        var top = dp(12)
+        if (Build.VERSION.SDK_INT >= 35) {
+            top += window.decorView.rootWindowInsets
+                ?.getInsets(android.view.WindowInsets.Type.statusBars())?.top ?: 0
+        }
+        addContentView(
+            stopBar,
+            android.widget.FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                Gravity.TOP
+            ).apply { setMargins(dp(16), top, dp(16), 0) }
+        )
     }
 
     override fun onResume() {
@@ -368,7 +392,7 @@ class ReceiverActivity : Activity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         refreshConfig()
         if (grantResults.isNotEmpty() && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this, R.string.msg_allow_settings, Toast.LENGTH_LONG).show()
+            TopBanner.show(this, getString(R.string.msg_allow_settings), false)
             startActivity(
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))
             )
@@ -449,7 +473,13 @@ class ReceiverActivity : Activity() {
         alertLine.text = "${getString(R.string.info_alert)} : ${t(p.getLong("r_alert_ts", 0))}"
         posLine.text = "${getString(R.string.info_pos)} : ${t(p.getLong("r_pos_ts", 0))}"
 
-        stopBar.visibility = if (AlertSound.isPlaying()) View.VISIBLE else View.GONE
+        val playing = AlertSound.isPlaying()
+        if (playing) {
+            stopTitle.text = getString(
+                if (p.getString("r_alarm_kind", "alert") == "lost") R.string.bar_lost else R.string.bar_alert
+            )
+        }
+        stopBar.visibility = if (playing) View.VISIBLE else View.GONE
         paintToggle(state == Link.OK)
         updateMap()
     }
@@ -477,7 +507,7 @@ class ReceiverActivity : Activity() {
         val lat = p.getString("r_lat", null)
         val lng = p.getString("r_lng", null)
         if (lat == null || lng == null) {
-            Toast.makeText(this, R.string.msg_no_pos, Toast.LENGTH_SHORT).show()
+            TopBanner.show(this, getString(R.string.msg_no_pos), false)
             return
         }
         try {
@@ -501,7 +531,7 @@ class ReceiverActivity : Activity() {
 
     private fun scanCode() {
         if (!codeInput.isEnabled) {
-            Toast.makeText(this, R.string.scan_locked, Toast.LENGTH_LONG).show()
+            TopBanner.show(this, getString(R.string.scan_locked), false)
             return
         }
         try {
@@ -510,16 +540,16 @@ class ReceiverActivity : Activity() {
                     val code = (b.rawValue ?: "").removePrefix("autoalert:").trim()
                     if (code.matches(Regex("^[A-Za-z0-9]{8,32}$"))) {
                         codeInput.setText(code)
-                        Toast.makeText(this, R.string.scan_ok, Toast.LENGTH_SHORT).show()
+                        TopBanner.show(this, getString(R.string.scan_ok), true)
                     } else {
-                        Toast.makeText(this, R.string.scan_bad, Toast.LENGTH_LONG).show()
+                        TopBanner.show(this, getString(R.string.scan_bad), false)
                     }
                 }
                 .addOnFailureListener {
-                    Toast.makeText(this, R.string.scan_fail, Toast.LENGTH_LONG).show()
+                    TopBanner.show(this, getString(R.string.scan_fail), false)
                 }
         } catch (_: Exception) {
-            Toast.makeText(this, R.string.scan_fail, Toast.LENGTH_LONG).show()
+            TopBanner.show(this, getString(R.string.scan_fail), false)
         }
     }
 
@@ -527,17 +557,17 @@ class ReceiverActivity : Activity() {
     private fun askCar() {
         val p = getSharedPreferences("p", MODE_PRIVATE)
         if (!p.getBoolean("r_active", false)) {
-            Toast.makeText(this, R.string.ask_start_first, Toast.LENGTH_LONG).show()
+            TopBanner.show(this, getString(R.string.ask_start_first), false)
             return
         }
         val code = p.getString("code", "") ?: ""
-        Toast.makeText(this, R.string.ask_sent, Toast.LENGTH_LONG).show()
+        TopBanner.show(this, getString(R.string.ask_sent), true)
 
         // La carte se recentre sur la voiture, même si elle a été déplacée
         if (mapReady) web.evaluateJavascript("recenter()", null)
 
         Api.postAsync("ask", org.json.JSONObject().put("code", code)) { ok ->
-            if (!ok) runOnUiThread { Toast.makeText(this, R.string.ask_fail, Toast.LENGTH_LONG).show() }
+            if (!ok) runOnUiThread { TopBanner.show(this, getString(R.string.ask_fail), false) }
         }
     }
 

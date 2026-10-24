@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AutoAlert Online</string>
+    <string name="app_name">AutoAlert Pro</string>
 
     <string name="status_active">Protection active</string>
     <string name="status_inactive">Protection non active</string>
@@ -128,4 +128,6 @@
     <string name="route_btn">Itinéraire</string>
     <string name="recv_stop_alarm">Arrêter l’alarme</string>
     <string name="link_wait">Connexion…</string>
+    <string name="bar_alert">La voiture bouge !</string>
+    <string name="bar_lost">La voiture ne répond plus</string>
 </resources>

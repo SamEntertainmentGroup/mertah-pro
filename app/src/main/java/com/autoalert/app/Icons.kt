@@ -25,7 +25,7 @@ object Icons {
         d.setBounds(0, 0, d.intrinsicWidth, d.intrinsicHeight)
         val s = android.text.SpannableString("  $label")
         s.setSpan(
-            android.text.style.ImageSpan(d, android.text.style.ImageSpan.ALIGN_BASELINE),
+            CenteredImageSpan(d),
             0, 1, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
         return s
@@ -195,5 +195,36 @@ object Icons {
 
         @Deprecated("Deprecated in Java")
         override fun getOpacity() = PixelFormat.TRANSLUCENT
+    }
+}
+
+// Icône alignée verticalement sur le milieu des lettres (et non posée sur la ligne de base)
+private class CenteredImageSpan(d: Drawable) : android.text.style.ImageSpan(d) {
+
+    override fun getSize(
+        paint: Paint,
+        text: CharSequence?,
+        start: Int,
+        end: Int,
+        fm: Paint.FontMetricsInt?
+    ): Int = drawable.bounds.right
+
+    override fun draw(
+        canvas: Canvas,
+        text: CharSequence?,
+        start: Int,
+        end: Int,
+        x: Float,
+        top: Int,
+        y: Int,
+        bottom: Int,
+        paint: Paint
+    ) {
+        val centre = y - paint.textSize * 0.3f
+        val transY = centre - drawable.bounds.height() / 2f
+        canvas.save()
+        canvas.translate(x, transY)
+        drawable.draw(canvas)
+        canvas.restore()
     }
 }

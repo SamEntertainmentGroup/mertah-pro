@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AutoAlert Online</string>
+    <string name="app_name">AutoAlert Pro</string>
 
     <string name="status_active">الحماية مفعّلة</string>
     <string name="status_inactive">الحماية غير مفعّلة</string>
@@ -128,4 +128,6 @@
     <string name="route_btn">المسار</string>
     <string name="recv_stop_alarm">إيقاف الإنذار</string>
     <string name="link_wait">جارٍ الاتصال…</string>
+    <string name="bar_alert">السيارة تتحرك!</string>
+    <string name="bar_lost">السيارة لا تستجيب</string>
 </resources>

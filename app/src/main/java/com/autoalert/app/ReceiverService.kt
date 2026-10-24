@@ -184,6 +184,7 @@ class ReceiverService : Service() {
 
     // ALARME : la voiture ne répond plus
     private fun fireLost(min: Int) {
+        getSharedPreferences("p", MODE_PRIVATE).edit().putString("r_alarm_kind", "lost").apply()
         AlertSound.play(this)
         val n = Notification.Builder(this, CH_ALERT)
             .setSmallIcon(android.R.drawable.ic_dialog_alert)
@@ -212,6 +213,7 @@ class ReceiverService : Service() {
 
     // ALARME : bip + notification
     private fun fireAlert() {
+        getSharedPreferences("p", MODE_PRIVATE).edit().putString("r_alarm_kind", "alert").apply()
         AlertSound.play(this)
 
         val p = getSharedPreferences("p", MODE_PRIVATE)
@@ -264,7 +266,11 @@ class ReceiverService : Service() {
         )
 
         m.createNotificationChannel(
-            NotificationChannel(CH_INFO, getString(R.string.ch_info), NotificationManager.IMPORTANCE_DEFAULT)
+            NotificationChannel(CH_INFO, getString(R.string.ch_info), NotificationManager.IMPORTANCE_HIGH)
+                .apply {
+                    setSound(null, null)
+                    enableVibration(false)
+                }
         )
 
         // Le bip est joué par AlertSound (volume d'alarme)
