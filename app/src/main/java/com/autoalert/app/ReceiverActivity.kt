@@ -42,7 +42,8 @@ class ReceiverActivity : Activity() {
     private lateinit var codeInput: EditText
     private lateinit var codeTitle: TextView
     private lateinit var codeCard: LinearLayout
-    private lateinit var toggleBtn: Button
+    private lateinit var toggleBtn: LinearLayout
+    private lateinit var toggleIcon: ImageView
     private lateinit var configCard: LinearLayout
     private lateinit var notifBtn: Button
     private lateinit var batBtn: Button
@@ -125,7 +126,7 @@ class ReceiverActivity : Activity() {
         batBtn = addRow(configCard, getString(R.string.perm_battery)) { askBattery() }
         root.addView(configCard)
 
-        // CODE DE LA VOITURE (toujours visible, verrouillé pendant l'écoute)
+        // CODE DE LA VOITURE (caché pendant l'écoute)
         codeTitle = sectionTitle(getString(R.string.section_code))
         root.addView(codeTitle)
         codeCard = card()
@@ -148,12 +149,26 @@ class ReceiverActivity : Activity() {
         root.addView(codeCard)
 
         // BOUTON D'ACTIVATION (en haut)
-        toggleBtn = Button(this).apply {
-            isAllCaps = false
-            textSize = 20f
-            setTypeface(null, Typeface.BOLD)
-            setTextColor(Color.WHITE)
-            stateListAnimator = null
+        // GRAND BOUTON D'ACTIVATION : cadenas seul, il remplit l'espace libre (créé ici, placé sous la carte)
+        toggleIcon = ImageView(this).apply { scaleType = ImageView.ScaleType.FIT_CENTER }
+        toggleBtn = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            minimumHeight = dp(110)
+            isClickable = true
+            addView(toggleIcon, LinearLayout.LayoutParams(dp(72), dp(72)))
+            // le cadenas grandit avec le bouton, donc avec la taille de l'écran
+            addOnLayoutChangeListener { _, l, t, r, b, _, _, _, _ ->
+                val size = (minOf(r - l, b - t) * 0.45f).toInt().coerceAtLeast(dp(48))
+                if (toggleIcon.layoutParams.width != size) {
+                    toggleIcon.post {
+                        val lp = toggleIcon.layoutParams
+                        lp.width = size
+                        lp.height = size
+                        toggleIcon.layoutParams = lp
+                    }
+                }
+            }
         }
 
         // CARTE VOITURE : état, carte, boutons, infos
@@ -264,8 +279,8 @@ class ReceiverActivity : Activity() {
         )
         root.addView(carCard)
 
-        // GRAND BOUTON D'ACTIVATION sous la carte
-        root.addView(toggleBtn, LinearLayout.LayoutParams(-1, dp(68)).apply { topMargin = dp(8) })
+        // GRAND BOUTON D'ACTIVATION sous la carte : prend tout l'espace jusqu'au bouton Plus
+        root.addView(toggleBtn, LinearLayout.LayoutParams(-1, 0, 1f).apply { topMargin = dp(8) })
 
         // PLUS
         root.addView(
@@ -557,7 +572,13 @@ class ReceiverActivity : Activity() {
     private fun updateStatus(active: Boolean) {
         codeInput.isEnabled = !active
         codeInput.alpha = if (active) 0.5f else 1f
-        toggleBtn.text = getString(if (active) R.string.recv_btn_on else R.string.recv_btn_off)
+        val vis = if (active) View.GONE else View.VISIBLE
+        codeTitle.visibility = vis
+        codeCard.visibility = vis
+        toggleIcon.setImageDrawable(
+            Icons.drawable(this, if (active) Icons.Kind.LOCK_CLOSED else Icons.Kind.LOCK_OPEN, Color.WHITE, 24)
+        )
+        toggleBtn.contentDescription = getString(if (active) R.string.recv_btn_on else R.string.recv_btn_off)
         refreshInfo()
     }
 

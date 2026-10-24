@@ -8,6 +8,7 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -17,10 +18,10 @@ class RoleActivity : Activity() {
 
     private val NOIR = Color.rgb(35, 38, 45)
     private val VERT = Color.rgb(25, 145, 80)
-    private val GRIS = Color.rgb(220, 223, 229)
+    private val GRIS = Color.rgb(196, 200, 209)
 
     // Une carte : conteneur, pastille d'icône, coche
-    private class RoleCard(val root: LinearLayout, val badge: TextView, val check: TextView)
+    private class RoleCard(val root: LinearLayout, val badge: View, val check: TextView)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,8 +53,8 @@ class RoleActivity : Activity() {
         })
 
         // LES DEUX CARTES (même largeur, espace régulier)
-        val car = roleCard("🚗", getString(R.string.role_car), getString(R.string.role_car_desc))
-        val receiver = roleCard("📱", getString(R.string.role_receiver), getString(R.string.role_receiver_desc))
+        val car = roleCard(Icons.Kind.CAR, NOIR, getString(R.string.role_car), getString(R.string.role_car_desc))
+        val receiver = roleCard(Icons.Kind.PHONE, VERT, getString(R.string.role_receiver), getString(R.string.role_receiver_desc))
 
         car.root.setOnClickListener {
             select(car, true)
@@ -107,7 +108,7 @@ class RoleActivity : Activity() {
     }
 
     // Carte compacte : pastille d'icône à gauche, titre + description, coche à droite
-    private fun roleCard(icon: String, title: String, desc: String): RoleCard {
+    private fun roleCard(kind: Icons.Kind, color: Int, title: String, desc: String): RoleCard {
         val card = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -117,17 +118,21 @@ class RoleActivity : Activity() {
             isFocusable = true
         }
 
-        val badge = TextView(this).apply {
-            text = icon
-            textSize = 24f
-            gravity = Gravity.CENTER
+        // Pastille de couleur franche, icône blanche pleine
+        val badge = ImageView(this).apply {
+            setImageDrawable(Icons.drawable(this@RoleActivity, kind, Color.WHITE, 28))
+            scaleType = ImageView.ScaleType.CENTER
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(color)
+            }
         }
-        card.addView(badge, LinearLayout.LayoutParams(dp(48), dp(48)))
+        card.addView(badge, LinearLayout.LayoutParams(dp(52), dp(52)))
 
         val texts = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         texts.addView(TextView(this).apply {
             text = title
-            textSize = 17f
+            textSize = 18f
             setTypeface(null, Typeface.BOLD)
             setTextColor(NOIR)
         })
@@ -135,7 +140,7 @@ class RoleActivity : Activity() {
             text = desc
             textSize = 14f
             maxLines = 2
-            setTextColor(Color.rgb(90, 95, 105))
+            setTextColor(Color.rgb(65, 70, 80))
             setPadding(0, dp(6), 0, 0)
         })
         card.addView(
@@ -171,10 +176,6 @@ class RoleActivity : Activity() {
             setColor(Color.WHITE)
             cornerRadius = dp(18).toFloat()
             setStroke(if (on) dp(2) else dp(1), if (on) VERT else GRIS)
-        }
-        c.badge.background = GradientDrawable().apply {
-            shape = GradientDrawable.OVAL
-            setColor(if (on) Color.rgb(222, 244, 231) else Color.rgb(240, 241, 244))
         }
         c.check.visibility = if (on) View.VISIBLE else View.INVISIBLE
     }

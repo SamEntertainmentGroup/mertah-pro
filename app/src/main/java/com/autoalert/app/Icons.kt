@@ -14,7 +14,7 @@ import kotlin.math.roundToInt
 // Petites icônes dessinées en code (traits fins, style moderne), colorables et nettes à toute taille
 object Icons {
 
-    enum class Kind { TARGET, NAV, WAVES, BATTERY, ALERT, PIN, STOP }
+    enum class Kind { TARGET, NAV, WAVES, BATTERY, ALERT, PIN, STOP, CAR, PHONE, LOCK_CLOSED, LOCK_OPEN }
 
     fun drawable(ctx: Context, kind: Kind, color: Int, sizeDp: Int = 22, level: Int = 100): Drawable =
         IconDrawable(kind, color, (sizeDp * ctx.resources.displayMetrics.density).roundToInt(), level)
@@ -102,6 +102,46 @@ object Icons {
                 }
                 Kind.STOP -> {
                     c.drawRoundRect(RectF(5f, 5f, 19f, 19f), 3f, 3f, fill)
+                }
+                Kind.CAR -> {
+                    // Toit avec deux vitres évidées
+                    val roof = Path().apply {
+                        fillType = Path.FillType.EVEN_ODD
+                        moveTo(5f, 11f); lineTo(7.5f, 6f); lineTo(16.5f, 6f); lineTo(19f, 11f); close()
+                        moveTo(7.6f, 10f); lineTo(9f, 7.4f); lineTo(11.4f, 7.4f); lineTo(11.4f, 10f); close()
+                        moveTo(12.6f, 10f); lineTo(12.6f, 7.4f); lineTo(15f, 7.4f); lineTo(16.4f, 10f); close()
+                    }
+                    c.drawPath(roof, fill)
+                    c.drawRoundRect(RectF(2f, 11f, 22f, 18f), 2.5f, 2.5f, fill)
+                    c.drawCircle(7.2f, 18.2f, 2.6f, fill)
+                    c.drawCircle(16.8f, 18.2f, 2.6f, fill)
+                }
+                Kind.PHONE -> {
+                    val p = Path().apply {
+                        fillType = Path.FillType.EVEN_ODD
+                        addRoundRect(RectF(6.5f, 2f, 17.5f, 22f), 2.8f, 2.8f, Path.Direction.CW)
+                        addRect(RectF(8.4f, 5f, 15.6f, 17.8f), Path.Direction.CW)
+                        addCircle(12f, 20f, 0.9f, Path.Direction.CW)
+                    }
+                    c.drawPath(p, fill)
+                }
+                Kind.LOCK_CLOSED, Kind.LOCK_OPEN -> {
+                    val shackle = Path().apply {
+                        moveTo(8f, 10f)
+                        lineTo(8f, 7f)
+                        arcTo(RectF(8f, 3f, 16f, 11f), 180f, 180f)
+                        if (kind == Kind.LOCK_CLOSED) lineTo(16f, 10f)
+                    }
+                    val sw = stroke.strokeWidth
+                    stroke.strokeWidth = 2.4f
+                    c.drawPath(shackle, stroke)
+                    stroke.strokeWidth = sw
+                    val body = Path().apply {
+                        fillType = Path.FillType.EVEN_ODD
+                        addRoundRect(RectF(4.5f, 10f, 19.5f, 21.5f), 2.8f, 2.8f, Path.Direction.CW)
+                        addCircle(12f, 15f, 1.8f, Path.Direction.CW)
+                    }
+                    c.drawPath(body, fill)
                 }
             }
             c.restore()
