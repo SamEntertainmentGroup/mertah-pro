@@ -23,7 +23,7 @@ object Icons {
         val kind: Kind,
         color: Int,
         val size: Int,
-        val level: Int
+        val batteryLevel: Int
     ) : Drawable() {
 
         private val stroke = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -76,7 +76,7 @@ object Icons {
                 Kind.BATTERY -> {
                     c.drawRoundRect(RectF(2f, 7f, 19f, 17f), 2.5f, 2.5f, stroke)
                     c.drawRect(RectF(20.5f, 10f, 22.5f, 14f), fill)
-                    val w = 11f * level.coerceIn(0, 100) / 100f
+                    val w = 11f * batteryLevel.coerceIn(0, 100) / 100f
                     if (w > 0.5f) c.drawRoundRect(RectF(5f, 9.5f, 5f + w, 14.5f), 1f, 1f, fill)
                 }
                 Kind.ALERT -> {
